@@ -1,33 +1,64 @@
 import { Link } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+
+const LOCAL_STORAGE_BLOG_KEY = 'retro_blog_posts';
+const LOCAL_STORAGE_SCORES_KEY = 'retro_snake_scores';
+
+interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+}
+
+interface Score {
+  player: string;
+  score: number;
+  date: string;
+}
 
 export default function Admin() {
-  const { data: stats } = useQuery({
-    queryKey: ['/api/stats'],
-    queryFn: async () => {
-      const response = await fetch('/api/stats');
-      if (!response.ok) throw new Error('Failed to fetch stats');
-      return response.json();
-    }
-  });
+  const [visitorCount, setVisitorCount] = useState<number>(0);
+  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [scores, setScores] = useState<Score[]>([]);
 
-  const { data: posts } = useQuery({
-    queryKey: ['/api/blog'],
-    queryFn: async () => {
-      const response = await fetch('/api/blog');
-      if (!response.ok) throw new Error('Failed to fetch posts');
-      return response.json();
-    }
-  });
+  // Simulate site stats & persist visitor count
+  useEffect(() => {
+    const storedVisitors = localStorage.getItem('retro_visitor_count');
+    let newCount = storedVisitors ? parseInt(storedVisitors, 10) + 1 : 1;
+    setVisitorCount(newCount);
+    setLastUpdated(new Date().toISOString());
+    localStorage.setItem('retro_visitor_count', newCount.toString());
+  }, []);
 
-  const { data: scores } = useQuery({
-    queryKey: ['/api/scores/snake'],
-    queryFn: async () => {
-      const response = await fetch('/api/scores/snake');
-      if (!response.ok) throw new Error('Failed to fetch scores');
-      return response.json();
+  // Load blog posts
+  useEffect(() => {
+    const stored = localStorage.getItem(LOCAL_STORAGE_BLOG_KEY);
+    if (stored) {
+      try {
+        setPosts(JSON.parse(stored));
+      } catch {
+        setPosts([]);
+      }
     }
-  });
+  }, []);
+
+  // Load snake scores
+  useEffect(() => {
+    const stored = localStorage.getItem(LOCAL_STORAGE_SCORES_KEY);
+    if (stored) {
+      try {
+        const parsed: Score[] = JSON.parse(stored);
+        // Sort descending
+        parsed.sort((a, b) => b.score - a.score);
+        setScores(parsed);
+      } catch {
+        setScores([]);
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -74,55 +105,38 @@ export default function Admin() {
           {/* Site Stats */}
           <div className="bg-card border-2 border-card-border p-6">
             <h3 className="text-xl font-bold text-accent mb-4 text-center">📊 SITE STATISTICS</h3>
-            {stats ? (
-              <div className="space-y-2 text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {stats.visitorCount}
-                </div>
-                <div className="text-sm text-muted-foreground">Total Visitors</div>
-                <div className="text-xs text-muted-foreground">
-                  Last updated: {new Date(stats.lastUpdated).toLocaleString()}
-                </div>
+            <div className="space-y-2 text-center">
+              <div className="text-2xl font-bold text-primary">{visitorCount}</div>
+              <div className="text-sm text-muted-foreground">Total Visitors</div>
+              <div className="text-xs text-muted-foreground">
+                Last updated: {new Date(lastUpdated).toLocaleString()}
               </div>
-            ) : (
-              <div className="text-center text-muted-foreground">Loading stats...</div>
-            )}
+            </div>
           </div>
 
           {/* Blog Stats */}
           <div className="bg-card border-2 border-card-border p-6">
             <h3 className="text-xl font-bold text-accent mb-4 text-center">📝 BLOG STATS</h3>
-            {posts ? (
-              <div className="space-y-2 text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {posts.length}
-                </div>
-                <div className="text-sm text-muted-foreground">Total Posts</div>
-                <div className="text-xs text-muted-foreground">
-                  Latest: {posts[0] ? new Date(posts[0].createdAt).toLocaleDateString() : 'None'}
-                </div>
+            <div className="space-y-2 text-center">
+              <div className="text-2xl font-bold text-primary">{posts.length}</div>
+              <div className="text-sm text-muted-foreground">Total Posts</div>
+              <div className="text-xs text-muted-foreground">
+                Latest:{' '}
+                {posts[0] ? new Date(posts[0].createdAt).toLocaleDateString() : 'None'}
               </div>
-            ) : (
-              <div className="text-center text-muted-foreground">Loading posts...</div>
-            )}
+            </div>
           </div>
 
           {/* Game Stats */}
           <div className="bg-card border-2 border-card-border p-6">
             <h3 className="text-xl font-bold text-accent mb-4 text-center">🎮 GAME STATS</h3>
-            {scores ? (
-              <div className="space-y-2 text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {scores.length}
-                </div>
-                <div className="text-sm text-muted-foreground">Snake Scores</div>
-                <div className="text-xs text-muted-foreground">
-                  High Score: {scores[0] ? scores[0].score : 0}
-                </div>
+            <div className="space-y-2 text-center">
+              <div className="text-2xl font-bold text-primary">{scores.length}</div>
+              <div className="text-sm text-muted-foreground">Snake Scores</div>
+              <div className="text-xs text-muted-foreground">
+                High Score: {scores[0] ? scores[0].score : 0}
               </div>
-            ) : (
-              <div className="text-center text-muted-foreground">Loading scores...</div>
-            )}
+            </div>
           </div>
         </div>
 

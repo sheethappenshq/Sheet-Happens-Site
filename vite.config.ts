@@ -3,13 +3,14 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
-// https://vitejs.dev/config/
+// IMPORTANT: base must match your repo name for GitHub Pages
 export default defineConfig({
-  base: "/Sheet-Happens-Site/", // 👈 important: GitHub repo name
+  base: "/Sheet-Happens-Site/", // 👈 Fix for GitHub Pages
   plugins: [
     react(),
     runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
+    ...(process.env.NODE_ENV !== "production" &&
+    process.env.REPL_ID !== undefined
       ? [
           await import("@replit/vite-plugin-cartographer").then((m) =>
             m.cartographer(),
@@ -26,7 +27,7 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist"), // 👈 must match deploy.yml
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
   },
   server: {

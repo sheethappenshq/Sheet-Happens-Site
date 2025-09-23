@@ -5,13 +5,12 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/Sheet-Happens-Site/", // 👈 required for GitHub Pages
+  base: "/Sheet-Happens-Site/", // 👈 important: GitHub repo name
   plugins: [
     react(),
     runtimeErrorOverlay(),
     ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
       ? [
-          // cartographer plugin only on Replit
           await import("@replit/vite-plugin-cartographer").then((m) =>
             m.cartographer(),
           ),
@@ -27,7 +26,7 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist"), // 👈 simplified to "dist" (needed for deploy.yml)
+    outDir: path.resolve(import.meta.dirname, "dist"), // 👈 must match deploy.yml
     emptyOutDir: true,
   },
   server: {

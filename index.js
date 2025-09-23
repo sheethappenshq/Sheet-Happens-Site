@@ -289,7 +289,7 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 var vite_config_default = defineConfig({
   base: "/Sheet-Happens-Site/",
-  // 👈 important: GitHub repo name
+  // 👈 Fix for GitHub Pages
   plugins: [
     react(),
     runtimeErrorOverlay(),
@@ -308,8 +308,7 @@ var vite_config_default = defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist"),
-    // 👈 must match deploy.yml
+    outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true
   },
   server: {

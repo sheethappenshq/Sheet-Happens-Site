@@ -1,25 +1,68 @@
 import { Link } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+// Removed useQuery as it relies on a backend API
 import { useState, useEffect } from 'react';
 
-export default function Home() {
-  const [visitorCount, setVisitorCount] = useState(1337);
+// --- MOCK DATA FOR STATIC SITE ---
+const MOCK_BLOG_POSTS = [
+  {
+    id: '1',
+    title: 'Welcome to Sheet Happens!',
+    author: 'Admin',
+    createdAt: new Date('2024-01-15T10:00:00Z').toISOString(),
+    content: 'Hello everyone! This is the very first post on Sheet Happens. We are excited to bring you the best emergency study sheets and a blast from the past with our retro website. Stay tuned for more updates and new cheat sheets!',
+  },
+  {
+    id: '2',
+    title: 'New Math Cheat Sheet Released!',
+    author: 'Admin',
+    createdAt: new Date('2024-02-20T14:30:00Z').toISOString(),
+    content: 'Just dropped a brand new Math Emergency Kit! It covers Algebra, Calculus, and Geometry. Perfect for those last-minute study sessions. Check it out in the Study Sheets section!',
+  },
+  {
+    id: '3',
+    title: 'Snake Game High Score Challenge!',
+    author: 'Admin',
+    createdAt: new Date('2024-03-05T11:00:00Z').toISOString(),
+    content: 'Think you\'re a Snake master? Head over to the Games section and try to beat the high score! Submit your name and score to see if you can make it to the top of the leaderboard!',
+  },
+  {
+    id: '4',
+    title: 'Physics Formulas Reference Sheet Now Available!',
+    author: 'Admin',
+    createdAt: new Date('2024-04-10T09:00:00Z').toISOString(),
+    content: 'Struggling with Physics? Our new Physics Formula Arsenal is here to save the day! Covers Newton\'s laws, electromagnetics, and thermodynamics. Get yours now!',
+  },
+  {
+    id: '5',
+    title: 'Website Updates and Bug Fixes',
+    author: 'Admin',
+    createdAt: new Date('2024-05-01T16:00:00Z').toISOString(),
+    content: 'We\'ve been working hard behind the scenes to improve your experience. Expect smoother navigation and even more retro goodness! Report any bugs to our contact email.',
+  },
+];
 
-  const { data: posts } = useQuery({
-    queryKey: ['/api/blog'],
-    queryFn: async () => {
-      const response = await fetch('/api/blog');
-      if (!response.ok) throw new Error('Failed to fetch posts');
-      return response.json();
-    }
-  });
+// Sort posts by creation date, newest first
+MOCK_BLOG_POSTS.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+const LOCAL_STORAGE_VISITOR_KEY = 'sheetHappensVisitorCount';
+
+export default function Home() {
+  const [visitorCount, setVisitorCount] = useState(0); // Initialize to 0, will load from localStorage
+
+  // Use mock posts directly
+  const posts = MOCK_BLOG_POSTS;
 
   useEffect(() => {
-    // Increment visitor count on page load
-    fetch('/api/stats/visit', { method: 'POST' })
-      .then(res => res.json())
-      .then(data => setVisitorCount(data.visitorCount))
-      .catch(() => {});
+    // Load visitor count from localStorage or initialize
+    let currentCount = parseInt(localStorage.getItem(LOCAL_STORAGE_VISITOR_KEY) || '0', 10);
+    if (isNaN(currentCount) || currentCount < 0) {
+      currentCount = 0; // Ensure it's a valid number
+    }
+    
+    // Increment for this visit
+    currentCount += 1;
+    localStorage.setItem(LOCAL_STORAGE_VISITOR_KEY, currentCount.toString());
+    setVisitorCount(currentCount);
   }, []);
 
   return (
@@ -38,17 +81,17 @@ export default function Home() {
       <nav className="bg-muted border-b-2 border-accent p-2">
         <div className="max-w-6xl mx-auto flex justify-center space-x-4">
           <Link href="/">
-            <div className="px-4 py-2 border-2 bg-secondary text-secondary-foreground border-primary font-bold text-lg cursor-pointer hover:bg-primary hover:text-primary-foreground"> {/* Changed to text-lg for larger font */}
+            <div className="px-4 py-2 border-2 bg-secondary text-secondary-foreground border-primary font-bold text-lg cursor-pointer hover:bg-primary hover:text-primary-foreground">
               🏠 HOME
             </div>
           </Link>
-          <Link href="/admin">
-            <div className="px-4 py-2 border-2 bg-secondary text-secondary-foreground border-primary font-bold text-lg cursor-pointer hover:bg-primary hover:text-primary-foreground"> {/* Changed to text-lg for larger font */}
+          <Link href="/admin"> {/* Changed to /admin as per your original code, assuming it's for "Study Sheets" now */}
+            <div className="px-4 py-2 border-2 bg-secondary text-secondary-foreground border-primary font-bold text-lg cursor-pointer hover:bg-primary hover:text-primary-foreground">
               📃 STUDY SHEETS
             </div>
           </Link>
           <Link href="/games">
-            <div className="px-4 py-2 border-2 bg-secondary text-secondary-foreground border-primary font-bold text-lg cursor-pointer hover:bg-primary hover:text-primary-foreground"> {/* Changed to text-lg for larger font */}
+            <div className="px-4 py-2 border-2 bg-secondary text-secondary-foreground border-primary font-bold text-lg cursor-pointer hover:bg-primary hover:text-primary-foreground">
               🎮 GAMES
             </div>
           </Link>
@@ -57,26 +100,22 @@ export default function Home() {
 
       {/* News Ticker */}
       <div className="bg-black text-green-400 py-1 overflow-hidden">
-        {/* News Ticker */}
-        <div className="bg-black text-green-400 py-1 overflow-hidden">
-          <div className="whitespace-nowrap animate-marquee text-s font-mono"> {/* Adjusted font size */}
+        <div className="whitespace-nowrap animate-marquee text-s font-mono">
              BREAKING NEWS: This is where you can find last minute cheat sheets, send me an email or have a look around and maybe play some games! 
-          </div>
         </div>
-
         <style jsx>{`
           @keyframes marquee {
             0% {
-              transform: translateX(100%); /* Start off-screen to the right */
+              transform: translateX(100%);
             }
             100% {
-              transform: translateX(-140%); /* End off-screen to the left */
+              transform: translateX(-140%);
             }
           }
 
           .animate-marquee {
-            animation: marquee 25s linear infinite; /* Adjust duration as needed */
-            white-space: nowrap; /* Prevent text wrapping */
+            animation: marquee 25s linear infinite;
+            white-space: nowrap;
           }
         `}</style>
       </div>

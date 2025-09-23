@@ -1,45 +1,70 @@
 import { Link } from 'wouter';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const LOCAL_STORAGE_BLOG_KEY = 'retro_blog_posts';
+
+interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+}
+
+const INITIAL_POSTS: BlogPost[] = [
+  {
+    id: '1',
+    title: '🎉 Welcome to TOMSPACE ’95 Blog!',
+    content: 'This is a retro-inspired blog running fully in your browser using localStorage. No backend required!',
+    author: 'System',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    title: '🚀 Static Hosting Rocks',
+    content: 'GitHub Pages makes it super easy to host static React apps. Everything you see here is client-side!',
+    author: 'System',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // yesterday
+  },
+];
 
 export default function Blog() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [newPostContent, setNewPostContent] = useState('');
-  const queryClient = useQueryClient();
 
-  const { data: posts } = useQuery({
-    queryKey: ['/api/blog'],
-    queryFn: async () => {
-      const response = await fetch('/api/blog');
-      if (!response.ok) throw new Error('Failed to fetch posts');
-      return response.json();
+  // Load posts from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(LOCAL_STORAGE_BLOG_KEY);
+    if (stored) {
+      try {
+        setPosts(JSON.parse(stored));
+      } catch {
+        setPosts(INITIAL_POSTS);
+      }
+    } else {
+      setPosts(INITIAL_POSTS);
     }
-  });
+  }, []);
 
-  const createPostMutation = useMutation({
-    mutationFn: async (newPost: { title: string; content: string }) => {
-      const response = await fetch('/api/blog', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPost),
-      });
-      if (!response.ok) throw new Error('Failed to create post');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/blog'] });
-      setNewPostTitle('');
-      setNewPostContent('');
-    },
-  });
+  // Save posts whenever they change
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_BLOG_KEY, JSON.stringify(posts));
+  }, [posts]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newPostTitle.trim() && newPostContent.trim()) {
-      createPostMutation.mutate({
-        title: newPostTitle,
-        content: newPostContent,
-      });
+      const newPost: BlogPost = {
+        id: Date.now().toString(),
+        title: newPostTitle.trim(),
+        content: newPostContent.trim(),
+        author: 'Guest',
+        createdAt: new Date().toISOString(),
+      };
+      setPosts([newPost, ...posts]);
+      setNewPostTitle('');
+      setNewPostContent('');
     }
   };
 
@@ -104,10 +129,9 @@ export default function Blog() {
             </div>
             <button
               type="submit"
-              disabled={createPostMutation.isPending}
               className="w-full bg-primary text-primary-foreground border-2 border-primary font-bold py-2 px-4 hover:bg-accent hover:text-accent-foreground hover:border-accent"
             >
-              {createPostMutation.isPending ? 'POSTING...' : 'PUBLISH POST'}
+              PUBLISH POST
             </button>
           </form>
         </div>
@@ -115,19 +139,21 @@ export default function Blog() {
         {/* Blog Posts */}
         <div className="space-y-6">
           <h2 className="text-3xl font-bold text-center text-primary neon-glow">BLOG POSTS</h2>
-          {posts && posts.length > 0 ? (
-            posts.map((post: any) => (
+          {posts.length > 0 ? (
+            posts.map((post) => (
               <div key={post.id} className="bg-card border-2 border-card-border p-6">
                 <h3 className="text-2xl font-bold text-accent mb-2">{post.title}</h3>
                 <div className="text-sm text-muted-foreground mb-4">
-                  By {post.author} on {new Date(post.createdAt).toLocaleDateString()} at {new Date(post.createdAt).toLocaleTimeString()}
+                  By {post.author} on{' '}
+                  {new Date(post.createdAt).toLocaleDateString()} at{' '}
+                  {new Date(post.createdAt).toLocaleTimeString()}
                 </div>
                 <div className="text-foreground whitespace-pre-wrap">{post.content}</div>
               </div>
             ))
           ) : (
             <div className="text-center text-muted-foreground">
-              <div className="animate-pulse">Loading blog posts...</div>
+              <div className="animate-pulse">No blog posts yet...</div>
             </div>
           )}
         </div>

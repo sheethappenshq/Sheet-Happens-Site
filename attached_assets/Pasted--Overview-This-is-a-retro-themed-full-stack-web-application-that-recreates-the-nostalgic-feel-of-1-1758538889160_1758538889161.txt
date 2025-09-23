@@ -1,0 +1,110 @@
+# Overview
+
+This is a retro-themed full-stack web application that recreates the nostalgic feel of 1990s websites. The application features a blog system, interactive games (Snake), site statistics tracking, and an admin panel. Built with modern technologies while maintaining a deliberately vintage aesthetic, it serves as both a functional web platform and a tribute to early web design.
+
+# User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+# Recent Changes and User Feedback
+
+**December 2024 - Retro 1990s Website Completed**
+- User expressed extreme satisfaction with the retro theme: "oh my god i love it"
+- Successfully implemented authentic 1990s web design aesthetic including:
+  - Neon color schemes with animated rainbow text
+  - Starfield background and retro button styling
+  - Animated marquee scrolling text
+  - Under construction banners and visitor counters
+  - Period-appropriate typography and UI elements
+
+**Current Status:** Project complete and user-approved. All major features functioning properly.
+
+**Latest Addition - December 2024:** Added animated GIF gallery section under Games tab featuring:
+- Classic 90s animated GIFs collection with authentic descriptions
+- Category filtering system (Classic, Web Graphics, Text Effects, Icons, etc.)
+- Retro-styled GIF browser with download/preview functionality
+- Tab-based navigation between Games and GIF sections
+
+# System Architecture
+
+## Frontend Architecture
+
+The client-side is built using **React 18** with **TypeScript** and follows a modern component-based architecture:
+
+- **Routing**: Uses `wouter` for lightweight client-side routing with pages for Home, Blog, Games, and Admin
+- **State Management**: Leverages **TanStack Query (React Query)** for server state management, caching, and data synchronization
+- **UI Framework**: Built on **shadcn/ui** components with **Radix UI** primitives for accessibility and **Tailwind CSS** for styling
+- **Styling**: Custom retro 90s theme with neon colors, animated elements, and period-appropriate design patterns
+- **Form Handling**: Uses **React Hook Form** with **Zod** validation for type-safe form management
+
+## Backend Architecture
+
+The server follows a **REST API** pattern built with **Express.js**:
+
+- **API Routes**: RESTful endpoints for blog posts, game scores, site statistics, and admin functions
+- **Data Storage**: Currently uses in-memory storage with a well-defined interface that can be easily swapped for database implementations
+- **Validation**: **Zod** schemas ensure data integrity across the application
+- **Development Setup**: **Vite** integration for hot module replacement and development tooling
+
+## Database Design
+
+Uses **Drizzle ORM** with **PostgreSQL** support:
+
+- **Schema Definition**: Type-safe schema definitions in TypeScript with automatic type inference
+- **Tables**: 
+  - `blog_posts` - Content management with timestamps
+  - `game_scores` - Gaming leaderboard system  
+  - `site_stats` - Visitor tracking and engagement metrics
+  - `users` - Basic user authentication (prepared but not fully implemented)
+- **Migration System**: Drizzle Kit handles schema migrations and database synchronization
+
+## Key Features
+
+- **Blog System**: Full CRUD operations for blog posts with real-time updates
+- **Snake Game**: Canvas-based game implementation with score tracking and leaderboards
+- **Visitor Counter**: Nostalgic visitor tracking with persistent storage
+- **Admin Panel**: Management interface for content and statistics (authentication placeholder)
+- **Responsive Design**: Mobile-friendly while maintaining retro aesthetic
+
+## Development Workflow
+
+- **Build System**: Vite for fast development and optimized production builds
+- **TypeScript**: Full type safety across frontend, backend, and shared schemas
+- **Monorepo Structure**: Organized into `client/`, `server/`, and `shared/` directories for clean separation of concerns
+- **Hot Reloading**: Development environment with automatic refresh and error handling
+
+# External Dependencies
+
+## Core Framework Dependencies
+- **React 18** - Frontend framework with modern hooks and concurrent features
+- **Express.js** - Backend web framework for API routes and middleware
+- **TypeScript** - Type safety across the entire application stack
+
+## Database & ORM
+- **Drizzle ORM** - Type-safe database toolkit with PostgreSQL support
+- **@neondatabase/serverless** - Serverless PostgreSQL database connection
+- **Drizzle Kit** - Database migrations and schema management
+
+## UI & Styling
+- **Tailwind CSS** - Utility-first CSS framework for styling
+- **shadcn/ui** - Component library built on Radix UI primitives
+- **Radix UI** - Accessible, unstyled UI components
+- **class-variance-authority** - Type-safe variant handling for components
+
+## State Management & Data Fetching
+- **TanStack Query** - Server state management, caching, and synchronization
+- **React Hook Form** - Form state management and validation
+- **Zod** - Runtime type validation and schema definition
+
+## Development Tools
+- **Vite** - Build tool and development server
+- **Wouter** - Lightweight client-side routing
+- **ESBuild** - Fast JavaScript bundler for production builds
+
+## Game Development
+- **HTML5 Canvas** - Used for Snake game rendering and animation
+
+## Fonts & Typography
+- **Google Fonts** - Architects Daughter, DM Sans, Fira Code, and Geist Mono for retro typography
+
+The application is designed to be easily deployable on Replit with automatic environment setup and database provisioning through Neon Database integration.

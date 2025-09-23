@@ -1,39 +1,65 @@
 import { Link } from 'wouter';
-import { useRef, useEffect, useState } from 'react';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useRef, useEffect, useState, useCallback } from 'react';
+
+// --- MOCK DATA AND LOCALSTORAGE SETUP FOR STATIC SITE ---
+const LOCAL_STORAGE_HIGH_SCORES_KEY = 'snakeHighScores';
+const MAX_HIGH_SCORES = 10; // Keep top 10 scores
+
+// Initial mock high scores (if localStorage is empty)
+const INITIAL_HIGH_SCORES = [
+  { id: '1', playerName: 'Retro Gamer', score: 1250, date: new Date('2024-05-01T10:00:00Z').toISOString() },
+  { id: '2', playerName: 'Snake Master', score: 980, date: new Date('2024-04-28T14:30:00Z').toISOString() },
+  { id: '3', playerName: 'Pixel Pro', score: 750, date: new Date('2024-04-20T11:00:00Z').toISOString() },
+  { id: '4', playerName: 'Admin', score: 620, date: new Date('2024-04-15T09:00:00Z').toISOString() },
+  { id: '5', playerName: 'Visitor', score: 450, date: new Date('2024-04-10T16:00:00Z').toISOString() },
+  { id: '6', playerName: 'Noob Slayer', score: 320, date: new Date('2024-04-05T12:00:00Z').toISOString() },
+  { id: '7', playerName: 'High Score', score: 280, date: new Date('2024-04-01T18:00:00Z').toISOString() },
+  { id: '8', playerName: 'Snake Fan', score: 210, date: new Date('2024-03-28T20:00:00Z').toISOString() },
+  { id: '9', playerName: 'Player One', score: 150, date: new Date('2024-03-25T15:00:00Z').toISOString() },
+  { id: '10', playerName: 'Test User', score: 100, date: new Date('2024-03-20T08:00:00Z').toISOString() },
+];
+
+// Helper functions for localStorage high scores
+const loadHighScores = (): Array<{ id: string; playerName: string; score: number; date: string }> => {
+  const stored = localStorage.getItem(LOCAL_STORAGE_HIGH_SCORES_KEY);
+  if (stored) {
+    try {
+      const scores = JSON.parse(stored);
+      return Array.isArray(scores) ? scores : INITIAL_HIGH_SCORES;
+    } catch {
+      return INITIAL_HIGH_SCORES;
+    }
+  }
+  return INITIAL_HIGH_SCORES;
+};
+
+const saveHighScore = (newScore: { playerName: string; score: number }) => {
+  const scores = loadHighScores();
+  const scoreWithId = {
+    ...newScore,
+    id: Date.now().toString(), // Simple unique ID
+    date: new Date().toISOString(),
+  };
+  
+  // Add new score and sort by score descending
+  const updatedScores = [...scores, scoreWithId].sort((a, b) => b.score - a.score);
+  
+  // Keep only top MAX_HIGH_SCORES
+  const topScores = updatedScores.slice(0, MAX_HIGH_SCORES);
+  
+  localStorage.setItem(LOCAL_STORAGE_HIGH_SCORES_KEY, JSON.stringify(topScores));
+  return topScores;
+};
 
 export default function Games() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [score, setScore] = useState(0);
   const [playerName, setPlayerName] = useState('');
+  const [highScores, setHighScores] = useState(loadHighScores()); // Load initial high scores
   const gameLoopRef = useRef<number>();
-  const queryClient = useQueryClient();
 
-  const { data: highScores } = useQuery({
-    queryKey: ['/api/scores/snake'],
-    queryFn: async () => {
-      const response = await fetch('/api/scores/snake');
-      if (!response.ok) throw new Error('Failed to fetch scores');
-      return response.json();
-    }
-  });
-
-  const saveScoreMutation = useMutation({
-    mutationFn: async (scoreData: { playerName: string; score: number; game: string }) => {
-      const response = await fetch('/api/scores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(scoreData),
-      });
-      if (!response.ok) throw new Error('Failed to save score');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/scores/snake'] });
-    },
-  });
-
+  // Game loop useEffect (client-side only, no backend deps)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !isPlaying) return;
@@ -57,8 +83,22 @@ export default function Games() {
       // Check wall collision
       if (head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 300) {
         setIsPlaying(false);
+        // Save score to localStorage if valid
         if (score > 0 && playerName.trim()) {
-          saveScoreMutation.mutate({ playerName: playerName.trim(), score, game: 'snake' });
+          const updatedScores = saveHighScore({ playerName: playerName.trim(), score });
+          setHighScores(updatedScores); // Update the displayed high scores
+          alert(`Game Over! Final Score: ${score}. Check the leaderboard!`);
+        }
+        return;
+      }
+
+      // Check self-collision (basic improvement)
+      if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+        setIsPlaying(false);
+        if (score > 0 && playerName.trim()) {
+          const updatedScores = saveHighScore({ playerName: playerName.trim(), score });
+          setHighScores(updatedScores);
+          alert(`Game Over! You ate yourself! Final Score: ${score}`);
         }
         return;
       }
@@ -86,14 +126,13 @@ export default function Games() {
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
-    const handleKeyPress = (e: KeyboardEvent) => {
-      switch(e.key) {
-        case 'ArrowUp': direction = { x: 0, y: -20 }; break;
-        case 'ArrowDown': direction = { x: 0, y: 20 }; break;
-        case 'ArrowLeft': direction = { x: -20, y: 0 }; break;
-        case 'ArrowRight': direction = { x: 20, y: 0 }; break;
-      }
-    };
+    const handleKeyPress = useCallback((e: KeyboardEvent) => {
+      // Prevent direction reversal for smoother gameplay
+      if (e.key === 'ArrowUp' && direction.y !== 20) direction = { x: 0, y: -20 };
+      else if (e.key === 'ArrowDown' && direction.y !== -20) direction = { x: 0, y: 20 };
+      else if (e.key === 'ArrowLeft' && direction.x !== 20) direction = { x: -20, y: 0 };
+      else if (e.key === 'ArrowRight' && direction.x !== -20) direction = { x: 20, y: 0 };
+    }, [direction]);
 
     window.addEventListener('keydown', handleKeyPress);
     gameLoop();
@@ -104,7 +143,7 @@ export default function Games() {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [isPlaying, score, playerName, saveScoreMutation]);
+  }, [isPlaying]); // Removed score, playerName, saveScoreMutation from deps to prevent re-renders during game
 
   const startGame = () => {
     if (!playerName.trim()) {
@@ -113,6 +152,7 @@ export default function Games() {
     }
     setIsPlaying(true);
     setScore(0);
+    // Reset snake position if needed (handled in useEffect)
   };
 
   const stopGame = () => {

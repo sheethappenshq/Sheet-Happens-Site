@@ -2,32 +2,30 @@ name: Deploy Vite site to GitHub Pages
 
 on:
   push:
-    branches:
-      - main  # or "master" if that's your default branch
+    branches: [ "main" ]   # Runs every time you push to main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # 👈 this fixes the git push permission error
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: npm
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build
+      - name: Build project
         run: npm run build
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/public  # 👈 your Vite outDir
+          publish_dir: ./dist   # Vite outputs to dist/ by default

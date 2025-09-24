@@ -56,7 +56,6 @@
 
     /* Sheet box */
     .sheet-box {
-      margin: 20px auto;
       max-width: 600px;
       background: white;
       padding: 20px;
@@ -79,7 +78,12 @@
     .sheet-link {
       text-decoration: none;
       color: inherit;
-      display: block;
+      display: inline-block; /* ✅ Only wraps around the .sheet-box */
+      width: 100%; /* ✅ Make sure it doesn’t shrink oddly */
+      max-width: 600px; /* ✅ Matches the .sheet-box max width */
+    }
+    .sheet-link .sheet-box {
+      margin: 20px auto; /* ✅ Keeps the box centered */
     }
     .sheet-link:hover .sheet-box {
       border-color: #ffcc00;

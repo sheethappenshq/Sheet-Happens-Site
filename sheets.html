@@ -22,13 +22,15 @@
       position: sticky;
       top: 0;
       z-index: 1000;
+      text-align: center;   /* ✅ Center everything in header */
     }
 
     /* Site title */
     .header h1 {
-      margin: 0;
+      margin: 0 auto;       /* ✅ Keeps it centered */
       font-size: 2em;
       font-weight: bold;
+      display: inline-block; /* ✅ Prevents weird stretching */
     }
 
     /* Navigation bar */
@@ -36,7 +38,7 @@
       margin-top: 10px;
       background: #444;
       padding: 10px 0;
-      text-align: center;
+      text-align: center;   /* ✅ Center the nav links */
     }
     .nav a {
       color: white;
@@ -79,12 +81,12 @@
     .sheet-link {
       text-decoration: none;
       color: inherit;
-      display: flex;          /* ✅ Use flexbox instead of block */
-      justify-content: center; /* ✅ Center the child box */
-      width: 100%;
+      display: inline-block; /* ✅ Only wraps the box */
+      max-width: 600px;      /* ✅ Matches .sheet-box */
+      margin: 20px auto;     /* ✅ Centers horizontally */
     }
     .sheet-link .sheet-box {
-      margin: 20px auto; /* ✅ Keeps the box centered */
+      margin: 0;             /* ✅ Let parent handle centering */
     }
     .sheet-link:hover .sheet-box {
       border-color: #ffcc00;

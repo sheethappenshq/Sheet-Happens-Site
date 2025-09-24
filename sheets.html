@@ -14,32 +14,35 @@
       text-align: center;
     }
 
-    /* Header bar (full width) */
+    .top-note {
+      max-width: 600px;
+      margin: 0 auto 20px;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    /* Header bar */
     .header {
       background: #333;
       color: white;
-      padding: 15px 0 10px 0; /* balanced vertical padding */
+      padding: 15px 0 0 0;
       position: sticky;
       top: 0;
       z-index: 1000;
     }
 
-    /* Title centered inside full-width header */
+    /* Site title */
     .header h1 {
       margin: 0;
       font-size: 2em;
       font-weight: bold;
-      display: block;
-      text-align: center;
     }
 
-    /* Navigation bar - full width background, centered links */
+    /* Navigation bar */
     .nav {
-      width: 100%;
+      margin-top: 10px;
       background: #444;
       padding: 10px 0;
-      box-sizing: border-box;
-      text-align: center; /* center the link inline items */
     }
     .nav a {
       color: white;
@@ -49,13 +52,15 @@
       font-weight: bold;
       transition: color 0.2s;
     }
-    .nav a:hover { color: #ffcc00; }
+    .nav a:hover {
+      color: #ffcc00;
+    }
 
     /* Page content column (centered and constrained) */
     .content {
       padding: 40px 20px;
-      max-width: 900px;   /* column width */
-      margin: 0 auto;     /* center column */
+      max-width: 900px;
+      margin: 0 auto;
       box-sizing: border-box;
     }
 
@@ -69,34 +74,47 @@
       text-align: left;
       transition: background 0.2s, border-color 0.2s;
     }
-    .sheet-box h2 { margin-top: 0; font-size: 1.5em; color: #444; }
-    .sheet-box p  { margin: 10px 0; color: #555; }
+    .sheet-box h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #444;
+    }
+    .sheet-box p {
+      margin: 10px 0;
+      color: #555;
+    }
 
-    /* Clickable wrapper: stack vertically, centered, only as wide as the box */
+    /* Clickable wrapper */
     .sheet-link {
-      display: block;       /* each link on its own line */
-      max-width: 600px;     /* match .sheet-box width */
-      margin: 20px auto;    /* center the link (so box centers) */
+      display: block;
+      max-width: 600px;
+      margin: 20px auto;
       text-decoration: none;
       color: inherit;
       box-sizing: border-box;
     }
-    .sheet-link .sheet-box { margin: 0; } /* parent centers it */
+    .sheet-link .sheet-box {
+      margin: 0;
+    }
     .sheet-link:hover .sheet-box {
       border-color: #ffcc00;
       background: #f9f9f9;
       cursor: pointer;
     }
 
-    /* small responsive tweak */
+    /* Responsive tweak */
     @media (max-width: 640px) {
-      .sheet-box, .sheet-link { max-width: calc(100% - 40px); }
-      .content { padding: 24px 12px; }
+      .sheet-box, .sheet-link {
+        max-width: calc(100% - 40px);
+      }
+      .content {
+        padding: 24px 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Header (full width background) -->
+  <!-- Header with site title and nav bar -->
   <div class="header">
     <h1>Sheet Happens</h1>
     <div class="nav">
@@ -106,7 +124,7 @@
     </div>
   </div>
 
-  <!-- Page content (constrained column) -->
+  <!-- Page content -->
   <div class="content">
     <h2>Study Sheets</h2>
     <p>

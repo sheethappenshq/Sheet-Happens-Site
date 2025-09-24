@@ -3,25 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Study Sheets | Sheet Happens</title>
-html, body {
-  font-family: Arial, sans-serif;
-  font-size: 16px; /* lock in size so it's consistent on every page */
-  margin: 0;
-  padding: 0;
-  background: #f4f4f4;
-  text-align: center;
-}
+  <title>Study Sheets - Sheet Happens</title>
+  <style>
+    html, body {
+      font-family: Arial, sans-serif;
+      font-size: 16px; /* lock font size */
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      text-align: center;
+    }
 
+    /* Header bar */
     .header {
       background: #333;
       color: white;
       padding: 15px 0 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
+
+    /* Site title */
     .header h1 {
       margin: 0;
       font-size: 2em;
+      font-weight: bold;
     }
+
+    /* Navigation bar */
     .nav {
       margin-top: 10px;
       background: #444;
@@ -31,18 +41,42 @@ html, body {
       color: white;
       text-decoration: none;
       margin: 0 15px;
+      font-size: 1.1em;
       font-weight: bold;
+      transition: color 0.2s;
     }
     .nav a:hover {
       color: #ffcc00;
     }
 
+    /* Content */
     .content {
       padding: 40px 20px;
+    }
+
+    /* Sheet box */
+    .sheet-box {
+      margin: 20px auto;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .sheet-box h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #444;
+    }
+    .sheet-box p {
+      margin: 10px 0;
+      color: #555;
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <div class="header">
     <h1>Sheet Happens</h1>
     <div class="nav">
@@ -52,9 +86,25 @@ html, body {
     </div>
   </div>
 
+  <!-- Content -->
   <div class="content">
     <h2>Study Sheets</h2>
-    <p>Download your emergency cheat sheets here! 📚</p>
+    <p>Here you’ll find helpful cheat sheets for your studies.</p>
+
+    <div class="sheet-box">
+      <h2>Math Sheet</h2>
+      <p>A quick reference for algebra, geometry, and calculus basics.</p>
+    </div>
+
+    <div class="sheet-box">
+      <h2>History Sheet</h2>
+      <p>Key dates, figures, and events for world history.</p>
+    </div>
+
+    <div class="sheet-box">
+      <h2>Science Sheet</h2>
+      <p>Important formulas and concepts for physics, chemistry, and biology.</p>
+    </div>
   </div>
 </body>
 </html>

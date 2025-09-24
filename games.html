@@ -3,24 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Games | Sheet Happens</title>
+  <title>Games - Sheet Happens</title>
   <style>
-    body {
+    html, body {
       font-family: Arial, sans-serif;
+      font-size: 16px; /* lock font size */
       margin: 0;
+      padding: 0;
       background: #f4f4f4;
       text-align: center;
     }
 
+    /* Header bar */
     .header {
       background: #333;
       color: white;
       padding: 15px 0 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
+
+    /* Site title */
     .header h1 {
       margin: 0;
       font-size: 2em;
+      font-weight: bold;
     }
+
+    /* Navigation bar */
     .nav {
       margin-top: 10px;
       background: #444;
@@ -30,18 +41,42 @@
       color: white;
       text-decoration: none;
       margin: 0 15px;
+      font-size: 1.1em;
       font-weight: bold;
+      transition: color 0.2s;
     }
     .nav a:hover {
       color: #ffcc00;
     }
 
+    /* Content */
     .content {
       padding: 40px 20px;
+    }
+
+    /* Game box */
+    .game-box {
+      margin: 20px auto;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .game-box h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #444;
+    }
+    .game-box p {
+      margin: 10px 0;
+      color: #555;
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <div class="header">
     <h1>Sheet Happens</h1>
     <div class="nav">
@@ -51,9 +86,25 @@
     </div>
   </div>
 
+  <!-- Content -->
   <div class="content">
     <h2>Games</h2>
-    <p>Here’s where the retro games will go! 🎮</p>
+    <p>Take a break and play some retro-inspired games!</p>
+
+    <div class="game-box">
+      <h2>Snake</h2>
+      <p>Classic snake game to test your reflexes.</p>
+    </div>
+
+    <div class="game-box">
+      <h2>Tetris</h2>
+      <p>Fit the falling blocks and clear lines for a high score.</p>
+    </div>
+
+    <div class="game-box">
+      <h2>Pong</h2>
+      <p>Old-school two-player paddle action.</p>
+    </div>
   </div>
 </body>
 </html>

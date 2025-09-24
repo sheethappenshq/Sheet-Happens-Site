@@ -65,26 +65,26 @@
     }
     .sheet-left {
       flex: 1 1 300px;
-      text-align: center;
-    }
-    .sheet-left img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 6px;
-      filter: blur(4px); /* blurred preview */
-    }
-    .sheet-right {
-      flex: 1 1 300px;
       text-align: left;
       background: #fafafa;
       border: 1px solid #ccc;
       border-radius: 6px;
       padding: 16px;
     }
-    .sheet-right h2 {
+    .sheet-left h2 {
       margin-top: 0;
       color: #444;
       text-align: center;
+    }
+    .sheet-right {
+      flex: 1 1 300px;
+      text-align: center;
+    }
+    .sheet-right img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 6px;
+      filter: blur(4px); /* blurred preview */
     }
     .price {
       font-weight: bold;
@@ -108,13 +108,8 @@
   <!-- Page Content: duplicate this block for each category -->
   <div class="content">
     <div class="sheet-layout">
-      <!-- Left: blurred preview image -->
+      <!-- Left: info box -->
       <div class="sheet-left">
-        <img src="images/topic-preview.jpg" alt="Topic Sheet Preview">
-      </div>
-
-      <!-- Right: info box -->
-      <div class="sheet-right">
         <h2>Topic Cheat Sheets</h2>
         <p>Write your explanation here about what Topic Cheat Sheets are, why they’re useful, etc.</p>
         <p class="price">$2 AUD each</p>
@@ -126,6 +121,11 @@
             <li>Maths – Trigonometry</li>
           </ul>
         </div>
+      </div>
+
+      <!-- Right: blurred preview image -->
+      <div class="sheet-right">
+        <img src="images/topic-preview.jpg" alt="Topic Sheet Preview">
       </div>
     </div>
   </div>

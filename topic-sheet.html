@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Topic Sheet - Sheet Happens</title>
+  <title>Sheet Happens - Cheat Sheets</title>
   <style>
     html, body {
       font-family: Arial, sans-serif;
@@ -18,7 +18,7 @@
     .header {
       background: #333;
       color: white;
-      padding: 15px 0 10px 0; /* top 15px, bottom 10px */
+      padding: 15px 0 10px 0;
       position: sticky;
       top: 0;
       z-index: 1000;
@@ -31,29 +31,68 @@
 
     /* Back button */
     .back-btn {
-      display: block;         /* centers with margin auto */
-      margin: 20px auto;      /* space and center */
+      display: block;
+      margin: 20px auto;
       padding: 10px 20px;
       background: #444;
       color: white;
       text-decoration: none;
       border-radius: 5px;
       transition: background 0.2s;
-      width: max-content;     /* shrink to content in modern browsers */
+      width: max-content;
     }
     .back-btn:hover {
       background: #ffcc00;
       color: #333;
     }
 
+    /* Content wrapper */
     .content {
       padding: 30px 20px;
-      max-width: 800px;
-      margin: 20px auto; /* leave some breathing room below back button */
-      text-align: left;
+      max-width: 1000px;
+      margin: 20px auto;
       background: white;
       border-radius: 8px;
       border: 2px solid #333;
+    }
+
+    /* Two-column layout inside content */
+    .sheet-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .sheet-left {
+      flex: 1 1 300px;
+      text-align: center;
+    }
+    .sheet-left img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 6px;
+      filter: blur(4px); /* blurred preview */
+    }
+    .sheet-right {
+      flex: 1 1 300px;
+      text-align: left;
+      background: #fafafa;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 16px;
+    }
+    .sheet-right h2 {
+      margin-top: 0;
+      color: #444;
+      text-align: center;
+    }
+    .price {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .available ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
     }
   </style>
 </head>
@@ -66,10 +105,31 @@
   <!-- Back button -->
   <a href="sheets.html" class="back-btn">← Back to Sheets</a>
 
-  <!-- Page Content -->
+  <!-- Page Content: duplicate this block for each category -->
   <div class="content">
-    <h2>Topic Cheat Sheet</h2>
-    <p>Here’s where you’d write about your topic cheat sheets.</p>
+    <div class="sheet-layout">
+      <!-- Left: blurred preview image -->
+      <div class="sheet-left">
+        <img src="images/topic-preview.jpg" alt="Topic Sheet Preview">
+      </div>
+
+      <!-- Right: info box -->
+      <div class="sheet-right">
+        <h2>Topic Cheat Sheets</h2>
+        <p>Write your explanation here about what Topic Cheat Sheets are, why they’re useful, etc.</p>
+        <p class="price">$2 AUD each</p>
+        <div class="available">
+          <strong>Available Topics:</strong>
+          <ul>
+            <li>Biology – Cell Structure</li>
+            <li>Chemistry – Organic Reactions</li>
+            <li>Maths – Trigonometry</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
+  <!-- End of one category block -->
+
 </body>
 </html>

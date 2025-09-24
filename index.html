@@ -7,13 +7,27 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
+      margin: 0; /* remove default spacing */
       background: #f4f4f4;
+      text-align: center;
     }
-    h1 {
-      color: #333;
+
+    /* Top bar */
+    .top-bar {
+      background: #333;      /* dark background */
+      color: white;          /* white text */
+      padding: 15px 0;       /* space above/below text */
+      font-size: 1.5em;
+      font-weight: bold;
+      position: sticky;      /* stays visible when scrolling */
+      top: 0;
+      z-index: 1000;
     }
+
+    .content {
+      padding: 40px 20px;
+    }
+
     .qa-box {
       margin: 40px auto;
       max-width: 600px;
@@ -42,16 +56,23 @@
   </style>
 </head>
 <body>
-  <h1>Sheet Happens</h1>
-  <p>Website coming soon!</p>
+  <!-- Top bar -->
+  <div class="top-bar">
+    Sheet Happens
+  </div>
 
-  <div class="qa-box">
-    <h2>Q&A</h2>
-    <p class="question">Q: What is Sheet Happens?</p>
-    <p class="answer">A: It’s your go-to for emergency study cheat sheets!</p>
+  <!-- Main content -->
+  <div class="content">
+    <p>Website coming soon!</p>
 
-    <p class="question">Q: When is launch day?</p>
-    <p class="answer">A: October 1st 🎉</p>
+    <div class="qa-box">
+      <h2>Q&A</h2>
+      <p class="question">Q: What is Sheet Happens?</p>
+      <p class="answer">A: It’s your go-to for emergency study cheat sheets!</p>
+
+      <p class="question">Q: When is launch day?</p>
+      <p class="answer">A: October 1st 🎉</p>
+    </div>
   </div>
 </body>
 </html>

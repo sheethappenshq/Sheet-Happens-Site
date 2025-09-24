@@ -18,7 +18,7 @@
     .header {
       background: #333;
       color: white;
-      padding: 15px 0 0 0;
+      padding: 15px 0 15px 0; /* balanced padding top/bottom */
       position: sticky;
       top: 0;
       z-index: 1000;
@@ -31,11 +31,21 @@
       font-weight: bold;
     }
 
+    /* Align header inner contents with page content */
+    .header h1,
+    .header .nav {
+      max-width: 900px;     /* same width as .content */
+      margin: 0 auto;       /* center them */
+      padding: 0 20px;      /* same side padding as content */
+      box-sizing: border-box;
+    }
+
     /* Navigation bar */
     .nav {
       margin-top: 10px;
       background: #444;
       padding: 10px 0;
+      text-align: center;
     }
     .nav a {
       color: white;
@@ -52,6 +62,8 @@
     /* Content */
     .content {
       padding: 40px 20px;
+      max-width: 900px;   /* keep aligned with header */
+      margin: 0 auto;     /* center it */
     }
 
     /* Sheet box */
@@ -74,16 +86,16 @@
       color: #555;
     }
 
-    /* Fixed clickable box */
+    /* Make sheet-box clickable */
     .sheet-link {
       text-decoration: none;
       color: inherit;
-      display: block;       /* ✅ stack vertically */
-      max-width: 600px;     /* ✅ match box width */
-      margin: 20px auto;    /* ✅ center the whole thing */
+      display: block;       /* stack vertically */
+      max-width: 600px;     /* same width as .sheet-box */
+      margin: 20px auto;    /* center it */
     }
     .sheet-link .sheet-box {
-      margin: 0;            /* ✅ prevent double centering */
+      margin: 0;            /* parent handles centering */
     }
     .sheet-link:hover .sheet-box {
       border-color: #ffcc00;
@@ -106,7 +118,7 @@
   <!-- Content -->
   <div class="content">
     <h2>Study Sheets</h2>
-    <p>This is where I put the cheat sheets I make, right now there are only cheat sheets for the subjects I'm currently doing, (cuz i use them myself), but if you
+    <p>This is where I put the cheat sheets I make, right now there are only cheat sheets for the subjects I'm currently doing, (cuz I use them myself), but if you
     have a subject request you can just DM or email me and I'll add it here. (At no extra cost btw that would be greedy as hell).</p>
 
     <!-- Box 1: links to topic.html -->
@@ -133,7 +145,7 @@
         <h2>Custom Cheat Sheet</h2>
         <p>Send me an email or DM me and within 2 hours I'll make you a individualised custom sheet on any subject (I can also do topics, but you get more content choosing a subject at no extra price, generous I know).</p>
         <br> 
-        <p>(Maybe its the night before your exam and you need like 3 subjects worth of information... I'm not one to judge)</p>
+        <p>(Maybe it's the night before your exam and you need like 3 subjects worth of information... I'm not one to judge)</p>
       </div>
     </a>
   </div>

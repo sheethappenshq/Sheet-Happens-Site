@@ -1,673 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Games - Sheet Happens</title>
-  <style>
-    /* ---------- Shared site/header styling (unchanged) ---------- */
-    html, body {
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      margin: 0;
-      padding: 0;
-      background: #0b0b0b;
-      color: #eee;
-      text-align: center;
-    }
-    .header {
-      background: #1f1f1f;
-      color: #ffcc00;
-      padding: 15px 0 0 0;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 3px solid #2b2b2b;
-    }
-    .header h1 { margin: 0; font-size: 2em; font-weight: bold; color:#ffd84d; text-shadow:0 1px 0 #000;}
-    .nav { margin-top: 10px; background: #2b2b2b; padding: 10px 0; border-top:1px solid #111; }
-    .nav a { color: #fff; text-decoration: none; margin: 0 15px; font-size: 1.1em; font-weight: bold; transition: color 0.2s; }
-    .nav a:hover { color: #ffcc00; }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Games - Sheet Happens</title>
+<style>
+  /* ---------- Site & header ---------- */
+  :root{ --accent:#ffd86b; --muted:#222; --bg:#0b0b0b; --panel:#050505; --border:#222; }
+  html,body{height:100%;margin:0;font-family:Arial,system-ui;background:var(--bg);color:#eee}
+  .header{background:#1f1f1f;padding:12px 16px;border-bottom:3px solid #2b2b2b;position:sticky;top:0;z-index:100}
+  .header h1{margin:0;font-size:18px;color:var(--accent)}
+  .container{max-width:1200px;margin:18px auto;padding:0 12px;box-sizing:border-box}
+  .top-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;margin:12px 0}
+  .ctrl{background:var(--muted);color:var(--accent);padding:6px 8px;border-radius:6px;border:1px solid #333;cursor:pointer}
+  input[type=range]{vertical-align:middle}
 
-    .content { padding: 28px 20px; max-width: 1200px; margin: 0 auto; }
+  /* ---------- Layers stacked vertically; each layer is horizontal (left canvas, right controls) ---------- */
+  .layer{background:var(--panel);border:2px solid var(--border);border-left:8px solid var(--accent);border-radius:10px;padding:14px;margin-bottom:18px;display:flex;gap:18px;align-items:flex-start;box-sizing:border-box}
+  .layer-title{font-weight:900;color:var(--accent);margin:0 0 8px 0;width:100%}
+  .left{flex:0 0 520px;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .right{flex:1 1 auto;display:flex;flex-direction:column;gap:8px}
+  canvas{background:#000;border:2px solid #222;image-rendering:pixelated;display:block}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:var(--accent);border:none;padding:8px 12px;border-radius:6px;font-weight:800;color:#111;cursor:pointer}
+  .small{background:#222;border-radius:6px;padding:6px;color:var(--accent);border:1px solid #333}
 
-    .section-box {
-      background: #050505;
-      border: 2px solid #222;
-      border-left: 6px solid #ffd86b;
-      border-radius: 10px;
-      padding: 14px;
-      margin: 18px auto;
-      max-width: 980px;
-      color: #ddd;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-    }
-    .section-title { color:#ffd86b; margin:0 0 8px 0; font-size:1.25em; }
+  .info{color:#ddd}
+  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.9);color:var(--accent);z-index:50;border-radius:10px}
+  .overlay .card{background:#111;padding:14px;border-radius:8px;border:2px solid #333;text-align:center}
 
-    .controls-row { display:flex; gap:10px; align-items:center; justify-content:center; margin-top:8px; flex-wrap:wrap; }
-    .btn { padding:8px 12px; background:#ffd86b; border:none; cursor:pointer; font-weight:bold; border-radius:4px; }
-    .btn:hover { background:#ffbf1a; }
-    .ctrl-quiet { background:#222; color:#ffd86b; border:1px solid #444; padding:6px 8px; border-radius:6px; cursor:pointer; }
-
-    /* layout for multiple game columns */
-    .games-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:18px; align-items:start; }
-
-    /* --------- Canvas defaults ---------- */
-    canvas { display:block; margin: 8px auto; background:#000; border:2px solid #222; image-rendering:pixelated; }
-
-    /* small screens */
-    @media (max-width: 640px) {
-      .section-box { padding:10px; }
-      .controls-row { justify-content:center; }
-    }
-
-    /* overlay common */
-    .overlay {
-      position:absolute; inset:0; display:none; align-items:center; justify-content:center;
-      background: rgba(0,0,0,0.88); color:#ffd86b; font-weight:bold; border-radius:8px; z-index:40;
-    }
-  </style>
+  @media (max-width:980px){
+    .layer{flex-direction:column;align-items:center}
+    .left{flex:auto}
+    canvas{width:92% !important;height:auto !important}
+  }
+</style>
 </head>
 <body>
   <div class="header">
-    <h1>Sheet Happens</h1>
-    <div class="nav">
-      <a href="index.html">Home</a>
-      <a href="games.html">Games</a>
-      <a href="sheets.html">Study Sheets</a>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>Sheet Happens — Games</h1>
+      <div style="color:#bbb">Use Arrow keys or WASD where supported</div>
     </div>
   </div>
 
-  <div class="content">
-    <h2 style="color:#ffd86b">Games</h2>
-    <p style="color:#ccc">Retro arcade hub — Snake, Tetris, Brick Breaker, and Pong. Controls: Arrow keys or WASD. Sound and high scores included.</p>
-
-    <!-- Shared sound/volume control -->
-    <div style="margin:8px 0 18px 0; display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap;">
-      <button id="masterSoundToggle" class="ctrl-quiet">SOUND: ON</button>
-      <label style="color:#ddd">MASTER VOL</label>
-      <input id="masterVol" type="range" min="0" max="100" value="70" />
+  <div class="container">
+    <div class="top-controls">
+      <button id="masterSoundToggle" class="ctrl">SOUND: ON</button>
+      <label style="color:#bbb">MASTER VOL</label>
+      <input id="masterVol" type="range" min="0" max="100" value="70">
     </div>
 
-    <div class="games-grid">
-      <!-- SNAKE SECTION -->
-      <div class="section-box" id="snakeSection" style="position:relative;">
-        <div class="section-title">SNAKE GAME</div>
-
-        <div style="display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;">
-          <label for="playerNameSnake" style="color:#ddd">PLAYER NAME</label>
-          <input id="playerNameSnake" type="text" placeholder="Enter name" />
-          <div id="snakeScoreDisplay" style="font-weight:bold;color:#ffd86b">SCORE: 0 | TOP: <span id="snakeTop">0</span></div>
+    <!-- SNAKE LAYER -->
+    <section class="layer" id="snakeLayer" style="position:relative">
+      <div style="width:100%">
+        <div class="layer-title">SNAKE</div>
+      </div>
+      <div class="left">
+        <canvas id="snakeCanvas" width="420" height="420"></canvas>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label style="color:#ddd">Player</label>
+          <input id="snakeName" type="text" placeholder="Name" style="padding:6px;border-radius:6px">
         </div>
-
-        <canvas id="snakeCanvas" width="360" height="360"></canvas>
-
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap;">
+      </div>
+      <div class="right">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div id="snakeScore" class="info">SCORE: 0</div>
+          <div id="snakeTop" class="info">TOP: 0</div>
+        </div>
+        <div class="controls">
           <button id="snakeStart" class="btn">Start</button>
           <button id="snakePause" class="btn">Pause</button>
           <button id="snakeStop" class="btn">Stop</button>
         </div>
-
-        <div style="text-align:center;color:#ccc;margin-top:8px">Use <strong>Arrow keys or WASD</strong> to control the snake.</div>
-
-        <!-- snake overlay -->
-        <div class="overlay" id="snakeOverlay"><div><div id="snakeOverlayText" style="color:white;font-size:18px">PAUSED</div><div style="margin-top:8px"><button id="snakeResume" class="btn">Resume</button></div></div></div>
+        <div class="info">Use Arrow keys or WASD. Speed increases as you eat food. High scores are saved locally.</div>
       </div>
+      <div class="overlay" id="snakeOverlay"><div class="card"><div id="snakeOverlayText">PAUSED</div><div style="margin-top:10px"><button id="snakeResume" class="btn">RESUME</button></div></div></div>
+    </section>
 
-      <!-- TETRIS SECTION -->
-      <div class="section-box" id="tetrisSection" style="position:relative;">
-        <div class="section-title">TETRIS</div>
-
-        <div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;">
-          <div>
-            <div style="color:#ffd86b;font-weight:bold">NEXT</div>
-            <canvas id="nextCanvas" width="100" height="100"></canvas>
-          </div>
-          <div>
-            <div style="color:#ffd86b;font-weight:bold">HOLD</div>
-            <canvas id="holdCanvas" width="100" height="100"></canvas>
-          </div>
-          <div style="text-align:left;min-width:160px">
-            <div style="color:#ffd86b;font-weight:bold">SCORE</div>
-            <div id="tetrisScore" style="font-weight:bold;color:#fff">0</div>
-            <div style="color:#ffd86b;font-weight:bold;margin-top:6px">LEVEL</div>
-            <div id="tetrisLevel" style="font-weight:bold;color:#fff">1</div>
-            <div style="color:#ffd86b;font-weight:bold;margin-top:6px">LINES</div>
-            <div id="tetrisLines" style="font-weight:bold;color:#fff">0</div>
-          </div>
+    <!-- TETRIS LAYER -->
+    <section class="layer" id="tetrisLayer" style="position:relative">
+      <div style="width:100%"><div class="layer-title">TETRIS</div></div>
+      <div class="left">
+        <canvas id="tetrisBoard" width="240" height="480"></canvas>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <div style="text-align:center"><div style="color:var(--accent);font-weight:800">NEXT</div><canvas id="tetrisNext" width="100" height="100"></canvas></div>
+          <div style="text-align:center"><div style="color:var(--accent);font-weight:800">HOLD</div><canvas id="tetrisHold" width="100" height="100"></canvas></div>
         </div>
-
-        <canvas id="tetrisBoard" width="240" height="480" style="display:block;margin:12px auto"></canvas>
-
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+      </div>
+      <div class="right">
+        <div style="display:flex;justify-content:space-between">
+          <div id="tetrisScore" class="info">SCORE: 0</div>
+          <div id="tetrisLines" class="info">LINES: 0</div>
+          <div id="tetrisLevel" class="info">LEVEL: 1</div>
+        </div>
+        <div class="controls">
           <button id="tetrisStart" class="btn">Start</button>
           <button id="tetrisPause" class="btn">Pause</button>
           <button id="tetrisHoldBtn" class="btn">Hold</button>
         </div>
-
-        <div style="text-align:center;color:#ccc;margin-top:8px">Controls: ←/→ or A/D move, ↑/W rotate, ↓/S soft drop, SPACE hard drop, H hold, P pause</div>
-
-        <div class="overlay" id="tetrisOverlay"><div><div id="tetrisOverlayText" style="color:white;font-size:18px">GAME OVER</div><div style="margin-top:8px"><button id="tetrisRestart" class="btn">Restart</button></div></div></div>
+        <div class="info">Controls: ←/→ or A/D move, ↑/W rotate, ↓/S soft drop (+score), SPACE hard drop, H hold, P pause. High scores saved locally.</div>
       </div>
+      <div class="overlay" id="tetrisOverlay"><div class="card"><div id="tetrisOverlayText">GAME OVER</div><div style="margin-top:10px"><button id="tetrisRestart" class="btn">RESTART</button></div></div></div>
+    </section>
 
-      <!-- BRICK BREAKER SECTION -->
-      <div class="section-box" id="breakerSection" style="position:relative;">
-        <div class="section-title">BRICK BREAKER</div>
-
-        <div style="display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:6px;">
-          <label for="playerNameBreaker" style="color:#ddd">PLAYER NAME</label>
-          <input id="playerNameBreaker" type="text" placeholder="Enter name" />
-          <div id="breakerScoreDisplay" style="font-weight:bold;color:#ffd86b">SCORE: 0 | TOP: <span id="breakerTop">0</span></div>
+    <!-- BRICK BREAKER LAYER -->
+    <section class="layer" id="breakerLayer" style="position:relative">
+      <div style="width:100%"><div class="layer-title">BRICK BREAKER</div></div>
+      <div class="left">
+        <canvas id="breakerCanvas" width="420" height="360"></canvas>
+      </div>
+      <div class="right">
+        <div style="display:flex;gap:12px;align-items:center">
+          <label style="color:#ddd">Player</label>
+          <input id="breakerName" type="text" placeholder="Name" style="padding:6px;border-radius:6px">
+          <div id="breakerScore" class="info">SCORE: 0</div>
+          <div id="breakerTop" class="info">TOP: 0</div>
         </div>
-
-        <canvas id="breakerCanvas" width="360" height="480"></canvas>
-
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap;">
+        <div class="controls">
           <button id="breakerStart" class="btn">Start</button>
           <button id="breakerPause" class="btn">Pause</button>
           <button id="breakerStop" class="btn">Stop</button>
         </div>
-
-        <div style="text-align:center;color:#ccc;margin-top:8px">Controls: ←/→ or A/D to move paddle. Space to launch.</div>
-
-        <div class="overlay" id="breakerOverlay"><div><div id="breakerOverlayText" style="color:white;font-size:18px">GAME OVER</div><div style="margin-top:8px"><button id="breakerRestart" class="btn">Restart</button></div></div></div>
+        <div class="info">Controls: ←/→ or A/D to move paddle. Space to launch. High scores saved locally.</div>
       </div>
+      <div class="overlay" id="breakerOverlay"><div class="card"><div id="breakerOverlayText">PAUSED</div><div style="margin-top:10px"><button id="breakerRestart" class="btn">RESTART</button></div></div></div>
+    </section>
 
-      <!-- PONG SECTION -->
-      <div class="section-box" id="pongSection" style="position:relative;">
-        <div class="section-title">PONG</div>
-
-        <div style="display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:6px;">
-          <label for="playerNamePong" style="color:#ddd">PLAYER NAME</label>
-          <input id="playerNamePong" type="text" placeholder="Enter name" />
-          <div id="pongScoreDisplay" style="font-weight:bold;color:#ffd86b">YOU: <span id="pongYou">0</span> | CPU: <span id="pongCPU">0</span></div>
+    <!-- PONG LAYER -->
+    <section class="layer" id="pongLayer" style="position:relative">
+      <div style="width:100%"><div class="layer-title">PONG</div></div>
+      <div class="left">
+        <canvas id="pongCanvas" width="480" height="320"></canvas>
+      </div>
+      <div class="right">
+        <div style="display:flex;gap:12px;align-items:center">
+          <label style="color:#ddd">Player</label>
+          <input id="pongName" type="text" placeholder="Name" style="padding:6px;border-radius:6px">
+          <div id="pongScore" class="info">YOU: 0</div>
+          <div id="pongCPU" class="info">CPU: 0</div>
         </div>
-
-        <canvas id="pongCanvas" width="600" height="360"></canvas>
-
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap;">
+        <div class="controls">
           <button id="pongStart" class="btn">Start</button>
           <button id="pongPause" class="btn">Pause</button>
           <button id="pongStop" class="btn">Stop</button>
         </div>
-
-        <div style="text-align:center;color:#ccc;margin-top:8px">Controls: W/S or ↑/↓ to move your paddle. Space to serve.</div>
-
-        <div class="overlay" id="pongOverlay"><div><div id="pongOverlayText" style="color:white;font-size:18px">PAUSED</div><div style="margin-top:8px"><button id="pongResume" class="btn">Resume</button></div></div></div>
+        <div class="info">Controls: W/S or ↑/↓ to move your paddle. Space to serve. High scores saved locally.</div>
       </div>
-    </div>
+      <div class="overlay" id="pongOverlay"><div class="card"><div id="pongOverlayText">PAUSED</div><div style="margin-top:10px"><button id="pongResume" class="btn">RESUME</button></div></div></div>
+    </section>
+
+    <!-- PAC-MAN LAYER -->
+    <section class="layer" id="pacmanLayer" style="position:relative">
+      <div style="width:100%"><div class="layer-title">PAC-MAN</div></div>
+      <div class="left">
+        <canvas id="pacmanCanvas" width="420" height="420"></canvas>
+      </div>
+      <div class="right">
+        <div style="display:flex;gap:12px;align-items:center">
+          <label style="color:#ddd">Player</label>
+          <input id="pacmanName" type="text" placeholder="Name" style="padding:6px;border-radius:6px">
+          <div id="pacmanScore" class="info">SCORE: 0</div>
+          <div id="pacmanTop" class="info">TOP: 0</div>
+        </div>
+        <div class="controls">
+          <button id="pacmanStart" class="btn">Start</button>
+          <button id="pacmanPause" class="btn">Pause</button>
+          <button id="pacmanStop" class="btn">Stop</button>
+        </div>
+        <div class="info">Controls: Arrow keys or WASD to move Pac‑Man. Eat pellets, avoid ghosts. High scores saved locally.</div>
+      </div>
+      <div class="overlay" id="pacmanOverlay"><div class="card"><div id="pacmanOverlayText">PAUSED</div><div style="margin-top:10px"><button id="pacmanResume" class="btn">RESUME</button></div></div></div>
+    </section>
+
   </div>
 
-  <script>
-    /* ----------------- Shared audio / master volume ----------------- */
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = AudioCtx ? new AudioCtx() : null;
-    const masterVolEl = document.getElementById('masterVol');
-    const masterSoundToggle = document.getElementById('masterSoundToggle');
-    let masterGain = null;
-    let masterSoundEnabled = true;
-    if (audioCtx){
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = Number(masterVolEl.value)/100;
-      masterGain.connect(audioCtx.destination);
+<script>
+/* ----------------- Shared audio + master volume ----------------- */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const audioCtx = AudioCtx ? new AudioCtx() : null;
+const masterVolEl = document.getElementById('masterVol');
+const masterSoundToggle = document.getElementById('masterSoundToggle');
+let masterGain = null;
+let masterSoundEnabled = true;
+if (audioCtx){
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = Number(masterVolEl.value)/100;
+  masterGain.connect(audioCtx.destination);
+}
+function playTone(freq=440,dur=0.06,type='square',vol=0.06){
+  if (!audioCtx || !masterSoundEnabled) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq; g.gain.value = vol;
+  o.connect(g); g.connect(masterGain || audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime + dur);
+}
+masterVolEl.addEventListener('input', ()=>{ if (audioCtx && masterGain) masterGain.gain.value = Number(masterVolEl.value)/100; });
+masterSoundToggle.addEventListener('click', ()=>{ masterSoundEnabled = !masterSoundEnabled; masterSoundToggle.textContent = masterSoundEnabled ? 'SOUND: ON' : 'SOUND: OFF'; if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); });
+
+/* Prevent arrow keys from scrolling page */
+window.addEventListener("keydown", function(e){
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].indexOf(e.key) > -1) e.preventDefault();
+}, false);
+
+/* ----------------- Utility: localStorage HS ----------------- */
+function loadHS(key){ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; }
+function saveHS(key, arr){ localStorage.setItem(key, JSON.stringify(arr)); }
+function updateHS(key, name, score){
+  const list = loadHS(key);
+  list.push({name:name||'Anon',score:score,t:Date.now()});
+  list.sort((a,b)=>b.score - a.score || a.t - b.t);
+  saveHS(key, list.slice(0,5));
+}
+
+/* ================= SNAKE ================= */
+(function(){
+  const canvas = document.getElementById('snakeCanvas');
+  const ctx = canvas.getContext('2d');
+  const box = 20;
+  let snake = [], food = null, dir = 'RIGHT', running=false, paused=false, timer= null;
+  let speed = 160, minSpeed=40, speedStep=8, score=0;
+  const HS_KEY='sheethappens_snake_v3';
+  const scoreEl = document.getElementById('snakeScore');
+  const topEl = document.getElementById('snakeTop');
+
+  function init(){
+    snake = [{x:9*box,y:10*box}];
+    dir='RIGHT'; score=0; speed=160; paused=false; running=false;
+    genFood(); renderScore(); draw();
+    topEl.textContent = loadHS(HS_KEY)[0]?.score || 0;
+  }
+  function genFood(){ const cols=Math.floor(canvas.width/box), rows=Math.floor(canvas.height/box); food = {x:Math.floor(Math.random()*cols)*box, y:Math.floor(Math.random()*rows)*box}; if (snake.some(s=>s.x===food.x && s.y===food.y)) genFood(); }
+  function draw(){
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='red'; ctx.fillRect(food.x, food.y, box, box);
+    for (let i=0;i<snake.length;i++){ ctx.fillStyle = i===0 ? '#0f0' : '#fff'; ctx.fillRect(snake[i].x, snake[i].y, box, box); }
+  }
+  function step(){
+    if (!running || paused) return;
+    let head = { ...snake[0] };
+    if (dir==='LEFT') head.x -= box;
+    if (dir==='RIGHT') head.x += box;
+    if (dir==='UP') head.y -= box;
+    if (dir==='DOWN') head.y += box;
+    // collisions
+    if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.some(s=>s.x===head.x && s.y===head.y)){
+      stop(true); return;
     }
-    function playBeep(freq=440,len=0.06,type='square',vol=0.06){
-      if (!audioCtx || !masterSoundEnabled) return;
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = type; o.frequency.value = freq; g.gain.value = vol;
-      o.connect(g); g.connect(masterGain || audioCtx.destination);
-      o.start(); o.stop(audioCtx.currentTime + len);
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y){
+      score++; genFood();
+      speed = Math.max(minSpeed, speed - speedStep);
+      if (masterSoundEnabled) playTone(880,0.06,'square',0.07);
+      // restart interval to apply new speed
+      clearInterval(timer); timer = setInterval(step, speed);
+    } else snake.pop();
+    renderScore(); draw();
+  }
+  function renderScore(){ scoreEl.textContent = 'SCORE: ' + score; topEl.textContent = loadHS(HS_KEY)[0]?.score || 0; }
+  function start(){ if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); running=true; paused=false; if (!timer) timer = setInterval(step, speed); }
+  function pause(){ if (!running) return; paused = !paused; document.getElementById('snakeOverlay').style.display = paused ? 'flex' : 'none'; document.getElementById('snakeOverlayText').textContent = paused ? 'PAUSED' : ''; }
+  function stop(ended=false){ running=false; paused=false; clearInterval(timer); timer=null; document.getElementById('snakeOverlay').style.display='none'; if (ended){ if (masterSoundEnabled) playTone(120,0.25,'sawtooth',0.12); updateHS(HS_KEY, document.getElementById('snakeName').value, score); alert('Game Over! Score: '+score); } init(); }
+  document.addEventListener('keydown', (e)=>{ const k=e.key; if ((k==='ArrowLeft'||k==='a'||k==='A') && dir!=='RIGHT') dir='LEFT'; else if ((k==='ArrowRight'||k==='d'||k==='D') && dir!=='LEFT') dir='RIGHT'; else if ((k==='ArrowUp'||k==='w'||k==='W') && dir!=='DOWN') dir='UP'; else if ((k==='ArrowDown'||k==='s'||k==='S') && dir!=='UP') dir='DOWN'; });
+  document.getElementById('snakeStart').addEventListener('click', start);
+  document.getElementById('snakePause').addEventListener('click', pause);
+  document.getElementById('snakeStop').addEventListener('click', ()=>stop(false));
+  document.getElementById('snakeResume').addEventListener('click', ()=>{ pause(); });
+  init();
+})();
+
+/* ================= TETRIS ================= */
+(function(){
+  const canvas = document.getElementById('tetrisBoard'); const ctx = canvas.getContext('2d');
+  const nextCtx = document.getElementById('tetrisNext').getContext('2d');
+  const holdCtx = document.getElementById('tetrisHold').getContext('2d');
+  const COLS=10, ROWS=20, BLOCK=24;
+  canvas.width = COLS*BLOCK; canvas.height = ROWS*BLOCK;
+  const COLORS = {'I':'#00f0f0','J':'#0000f0','L':'#f0a000','O':'#f0f000','S':'#00f000','T':'#a000f0','Z':'#f00000'};
+  const TETROMINOES = {
+    I: [[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],[[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]]],
+    J: [[[1,0,0],[1,1,1],[0,0,0]],[[0,1,1],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,1]],[[0,1,0],[0,1,0],[1,1,0]]],
+    L: [[[0,0,1],[1,1,1],[0,0,0]],[[0,1,0],[0,1,0],[0,1,1]],[[0,0,0],[1,1,1],[1,0,0]],[[1,1,0],[0,1,0],[0,1,0]]],
+    O: [[[1,1],[1,1]]],
+    S: [[[0,1,1],[1,1,0],[0,0,0]],[[0,1,0],[0,1,1],[0,0,1]]],
+    T: [[[0,1,0],[1,1,1],[0,0,0]],[[0,1,0],[0,1,1],[0,1,0]],[[0,0,0],[1,1,1],[0,1,0]],[[0,1,0],[1,1,0],[0,1,0]]],
+    Z: [[[1,1,0],[0,1,1],[0,0,0]],[[0,0,1],[0,1,1],[0,1,0]]]
+  };
+  let board=[], current=null, nextPiece=null, holdPiece=null, canHold=true;
+  let score=0, lines=0, level=1, dropInterval=800, dropTimer=null, paused=false, gameOver=false;
+  const HS_KEY = 'sheethappens_tetris_v3';
+
+  function createBoard(){ board=[]; for (let r=0;r<ROWS;r++) board.push(new Array(COLS).fill(0)); }
+  function rndPiece(){ const keys=Object.keys(TETROMINOES); const k=keys[Math.floor(Math.random()*keys.length)]; const shapes=TETROMINOES[k]; return {type:k, shapes, rot:0, x:Math.floor(COLS/2)-Math.ceil(shapes[0][0].length/2), y:0}; }
+  function getShape(p){ return p.shapes[p.rot]; }
+  function clone(p){ return {type:p.type,shapes:p.shapes,rot:p.rot,x:p.x,y:p.y}; }
+
+  function collide(piece, ox=0, oy=0){
+    const shape = getShape(piece);
+    for (let r=0;r<shape.length;r++) for (let c=0;c<shape[r].length;c++) if (shape[r][c]){
+      const x = piece.x + c + ox, y = piece.y + r + oy;
+      if (x<0 || x>=COLS || y>=ROWS) return true;
+      if (y>=0 && board[y][x]) return true;
     }
-    masterVolEl.addEventListener('input', ()=>{ if(audioCtx && masterGain) masterGain.gain.value = Number(masterVolEl.value)/100;});
-    masterSoundToggle.addEventListener('click', ()=>{
-      masterSoundEnabled = !masterSoundEnabled;
-      masterSoundToggle.textContent = masterSoundEnabled ? 'SOUND: ON' : 'SOUND: OFF';
-      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return false;
+  }
+
+  function place(piece){
+    const shape = getShape(piece);
+    for (let r=0;r<shape.length;r++) for (let c=0;c<shape[r].length;c++) if (shape[r][c]){
+      const x = piece.x + c, y = piece.y + r;
+      if (y>=0) board[y][x] = piece.type;
+    }
+    clearLines();
+    canHold=true;
+    spawnNext();
+  }
+
+  function clearLines(){
+    let cleared=0;
+    for (let r=ROWS-1;r>=0;r--){
+      if (board[r].every(cell => cell !== 0)){ board.splice(r,1); board.unshift(new Array(COLS).fill(0)); cleared++; r++; }
+    }
+    if (cleared){
+      const pts=[0,100,300,500,800];
+      score += pts[cleared]*level;
+      lines += cleared;
+      level = Math.floor(lines/10)+1;
+      dropInterval = Math.max(120, 800 - (level-1)*60);
+      if (masterSoundEnabled) playTone(880,0.08,'square',0.06);
+      updateTetrisUI();
+    }
+  }
+
+  function drawBlock(x,y,color,ctxLocal){ ctxLocal.fillStyle = color; ctxLocal.fillRect(x*BLOCK,y*BLOCK,BLOCK,BLOCK); ctxLocal.strokeStyle='#000'; ctxLocal.strokeRect(x*BLOCK,y*BLOCK,BLOCK,BLOCK); }
+  function drawBoard(){ ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height); for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++) if (board[r][c]) drawBlock(c,r,COLORS[board[r][c]],ctx); if (current) drawPiece(current); }
+  function drawPiece(piece, context=ctx){ const shape=getShape(piece); const color = COLORS[piece.type]; for (let r=0;r<shape.length;r++) for (let c=0;c<shape[r].length;c++) if (shape[r][c]){ const x=piece.x+c, y=piece.y+r; if (y>=0){ drawBlock(x,y,color,context); } } }
+  function drawNext(){ nextCtx.fillStyle='#000'; nextCtx.fillRect(0,0,120,120); if (!nextPiece) return; const shape=getShape(nextPiece); const size=shape.length; const cell=Math.floor(120/6); const ox=Math.floor((120 - size*cell)/2), oy=ox; for (let r=0;r<size;r++) for (let c=0;c<size;c++) if (shape[r][c]){ nextCtx.fillStyle = COLORS[nextPiece.type]; nextCtx.fillRect(ox + c*cell, oy + r*cell, cell, cell); nextCtx.strokeStyle='#000'; nextCtx.strokeRect(ox + c*cell, oy + r*cell, cell, cell); } }
+  function drawHold(){ holdCtx.fillStyle='#000'; holdCtx.fillRect(0,0,120,120); if (!holdPiece) return; const shape=getShape(holdPiece); const size=shape.length; const cell=Math.floor(120/6); const ox=Math.floor((120 - size*cell)/2), oy=ox; for (let r=0;r<size;r++) for (let c=0;c<size;c++) if (shape[r][c]){ holdCtx.fillStyle = COLORS[holdPiece.type]; holdCtx.fillRect(ox + c*cell, oy + r*cell, cell, cell); holdCtx.strokeStyle='#000'; holdCtx.strokeRect(ox + c*cell, oy + r*cell, cell, cell); } }
+
+  function spawnNext(){ if (!nextPiece) nextPiece = rndPiece(); current = clone(nextPiece); current.x = Math.floor(COLS/2)-Math.ceil(getShape(current)[0].length/2); nextPiece = rndPiece(); canHold=true; if (collide(current)) endGame(); drawBoard(); drawNext(); drawHold(); }
+  function holdCurrent(){ if (!canHold) return; if (!holdPiece){ holdPiece = clone(current); spawnNext(); } else { const tmp = clone(current); current = clone(holdPiece); holdPiece = tmp; current.x = Math.floor(COLS/2)-Math.ceil(getShape(current)[0].length/2); current.y = 0; if (collide(current)) endGame(); } canHold=false; drawBoard(); drawNext(); drawHold(); }
+  function move(dx,dy){ if (!current) return false; current.x += dx; current.y += dy; if (collide(current)){ current.x -= dx; current.y -= dy; return false; } return true; }
+  function rotateCurrent(){ if (!current) return; const old = current.rot; current.rot = (current.rot + 1) % current.shapes.length; const kicks=[0,-1,1,-2,2]; let ok=false; for (let k of kicks){ current.x += k; if (!collide(current)){ ok=true; break; } current.x -= k; } if (!ok) current.rot = old; }
+  function hardDrop(){ if (!current) return; while(move(0,1)){} place(current); if (masterSoundEnabled) playTone(1200,0.02,'square',0.03); updateTetrisUI(); }
+  function gravityTick(){ if (paused || gameOver) return; if (!move(0,1)){ place(current); updateTetrisUI(); } drawBoard(); }
+
+  function start(){ if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); createBoard(); current=null; nextPiece=rndPiece(); holdPiece=null; canHold=true; score=0; lines=0; level=1; dropInterval=800; paused=false; gameOver=false; document.getElementById('tetrisOverlay').style.display='none'; spawnNext(); updateTetrisUI(); if (dropTimer) clearInterval(dropTimer); dropTimer = setInterval(gravityTick, dropInterval); }
+  function pause(){ paused = !paused; document.getElementById('tetrisOverlay').style.display = paused ? 'flex' : 'none'; document.getElementById('tetrisOverlayText').textContent = paused ? 'PAUSED' : 'GAME OVER'; }
+  function endGame(){ gameOver=true; clearInterval(dropTimer); document.getElementById('tetrisOverlay').style.display='flex'; document.getElementById('tetrisOverlayText').textContent='GAME OVER'; // save HS
+    updateHS(HS_KEY, 'TETRIS', score); if (masterSoundEnabled) playTone(120,0.25,'sawtooth',0.12); }
+  function updateTetrisUI(){ document.getElementById('tetrisScore').textContent = 'SCORE: ' + score; document.getElementById('tetrisLines').textContent = 'LINES: ' + lines; document.getElementById('tetrisLevel').textContent = 'LEVEL: ' + level; if (dropTimer){ clearInterval(dropTimer); dropTimer = setInterval(gravityTick, dropInterval); } drawBoard(); drawNext(); drawHold(); }
+
+  document.addEventListener('keydown', function(e){
+    if (gameOver) return;
+    const k=e.key;
+    if (k==='p' || k==='P'){ pause(); return; }
+    if (paused) return;
+    if (k==='ArrowLeft' || k==='a' || k==='A'){ move(-1,0); drawBoard(); }
+    else if (k==='ArrowRight' || k==='d' || k==='D'){ move(1,0); drawBoard(); }
+    else if (k==='ArrowDown' || k==='s' || k==='S'){ if (move(0,1)){ score += 1; if (masterSoundEnabled) playTone(1200,0.01,'square',0.02); updateTetrisUI(); } }
+    else if (k==='ArrowUp' || k==='w' || k==='W'){ rotateCurrent(); drawBoard(); }
+    else if (k===' '){ hardDrop(); drawBoard(); }
+    else if (k==='h' || k==='H'){ holdCurrent(); }
+  });
+
+  document.getElementById('tetrisStart').addEventListener('click', start);
+  document.getElementById('tetrisPause').addEventListener('click', pause);
+  document.getElementById('tetrisHoldBtn').addEventListener('click', ()=>{ holdCurrent(); });
+
+  function createBoard(){ board=[]; for (let r=0;r<ROWS;r++) board.push(new Array(COLS).fill(0)); }
+  createBoard();
+  drawBoard();
+})();
+
+/* ================= BRICK BREAKER ================= */
+(function(){
+  const canvas = document.getElementById('breakerCanvas'); const ctx = canvas.getContext('2d');
+  let paddleW = 100, paddleH = 12;
+  let paddleX = (canvas.width - paddleW)/2;
+  let ball = {x: canvas.width/2, y: canvas.height-60, vx: 3, vy: -4, r:7};
+  let bricks=[], rows=5, cols=8, brickW, brickH=16;
+  let running=false, paused=false, score=0, lives=3, loop=null;
+  const HS_KEY='sheethappens_breaker_v2';
+  function initLevel(){ brickW = Math.floor((canvas.width - 40)/cols); bricks=[]; for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) bricks.push({x:20 + c*brickW,y:40 + r*(brickH+6),w:brickW-6,h:brickH,alive:true,color:`hsl(${r*30},70%,60%)`}); score=0; lives=3; updateUI(); draw(); }
+  function draw(){ ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height); bricks.forEach(b=>{ if (b.alive){ ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,b.w,b.h); ctx.strokeStyle='#000'; ctx.strokeRect(b.x,b.y,b.w,b.h);} }); ctx.fillStyle='#ffd86b'; ctx.fillRect(paddleX, canvas.height-30, paddleW, paddleH); ctx.beginPath(); ctx.fillStyle='#fff'; ctx.arc(ball.x, ball.y, ball.r,0,Math.PI*2); ctx.fill(); }
+  function step(){ if (!running || paused) return; ball.x += ball.vx; ball.y += ball.vy; if (ball.x - ball.r < 0 || ball.x + ball.r > canvas.width) ball.vx *= -1; if (ball.y - ball.r < 0) ball.vy *= -1; if (ball.y + ball.r >= canvas.height - 30 && ball.x >= paddleX && ball.x <= paddleX + paddleW){ ball.vy *= -1; const hit = (ball.x - (paddleX + paddleW/2)) / (paddleW/2); ball.vx = hit * 6; if (masterSoundEnabled) playTone(900,0.03,'square',0.05); } bricks.forEach(b=>{ if (b.alive && ball.x > b.x && ball.x < b.x + b.w && ball.y - ball.r < b.y + b.h && ball.y + ball.r > b.y){ b.alive=false; ball.vy *= -1; score += 10; if (masterSoundEnabled) playTone(720,0.04,'square',0.06);} }); if (ball.y - ball.r > canvas.height){ lives--; if (lives <= 0) gameOver(); else resetBall(); } draw(); updateUI(); if (bricks.every(b=>!b.alive)){ rows = Math.min(8, rows+1); initLevel(); if (masterSoundEnabled) playTone(1200,0.08,'square',0.06); } }
+  function updateUI(){ document.getElementById('breakerScore').textContent = 'SCORE: ' + score; document.getElementById('breakerTop').textContent = loadHS(HS_KEY)[0]?.score || 0; }
+  function resetBall(){ ball = {x: canvas.width/2, y: canvas.height-60, vx: 3, vy: -4, r:7}; paddleX = (canvas.width - paddleW)/2; }
+  function start(){ if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); running=true; paused=false; initLevel(); clearInterval(loop); loop = setInterval(step, 20); document.getElementById('breakerOverlay').style.display='none'; }
+  function pause(){ if (!running) return; paused = !paused; document.getElementById('breakerOverlay').style.display = paused ? 'flex' : 'none'; document.getElementById('breakerOverlayText').textContent = paused ? 'PAUSED' : 'GAME OVER'; }
+  function stop(){ running=false; paused=false; clearInterval(loop); document.getElementById('breakerOverlay').style.display='none'; }
+  function gameOver(){ running=false; clearInterval(loop); document.getElementById('breakerOverlay').style.display='flex'; document.getElementById('breakerOverlayText').textContent = 'GAME OVER'; updateHS(HS_KEY, document.getElementById('breakerName').value, score); }
+  document.getElementById('breakerStart').addEventListener('click', start);
+  document.getElementById('breakerPause').addEventListener('click', pause);
+  document.getElementById('breakerStop').addEventListener('click', stop);
+  document.getElementById('breakerRestart').addEventListener('click', ()=>{ document.getElementById('breakerOverlay').style.display='none'; start(); });
+  canvas.addEventListener('mousemove', e=>{ const rect = canvas.getBoundingClientRect(); const x = e.clientX - rect.left; paddleX = Math.max(0, Math.min(canvas.width - paddleW, x - paddleW/2)); });
+  document.addEventListener('keydown', e=>{ if (e.key==='ArrowLeft' || e.key==='a' || e.key==='A') paddleX -= 30; if (e.key==='ArrowRight' || e.key==='d' || e.key==='D') paddleX += 30; if (e.key===' ' && !running) start(); });
+  initLevel();
+})();
+
+/* ================= PONG ================= */
+(function(){
+  const canvas = document.getElementById('pongCanvas'); const ctx = canvas.getContext('2d');
+  let playerY = (canvas.height - 80)/2, cpuY = playerY;
+  const paddleW = 12, paddleH = 80;
+  let ball = {x: canvas.width/2, y: canvas.height/2, vx: 4, vy: 2, r:7};
+  let running=false, paused=false, you=0, cpu=0, loop=null;
+  const HS_KEY='sheethappens_pong_v2';
+  function draw(){ ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#222'; for (let y=0;y<canvas.height;y+=24) ctx.fillRect(canvas.width/2 -2, y, 4, 12); ctx.fillStyle='#ffd86b'; ctx.fillRect(10, playerY, paddleW, paddleH); ctx.fillRect(canvas.width-20, cpuY, paddleW, paddleH); ctx.beginPath(); ctx.fillStyle='#fff'; ctx.arc(ball.x, ball.y, ball.r,0,Math.PI*2); ctx.fill(); document.getElementById('pongScore').textContent = 'YOU: ' + you; document.getElementById('pongCPU').textContent = 'CPU: ' + cpu; }
+  function step(){ if (!running || paused) return; ball.x += ball.vx; ball.y += ball.vy; if (ball.y - ball.r < 0 || ball.y + ball.r > canvas.height) ball.vy *= -1; if (ball.x - ball.r < 20 && ball.y > playerY && ball.y < playerY + paddleH){ ball.vx = Math.abs(ball.vx); const rel = (ball.y - (playerY + paddleH/2))/(paddleH/2); ball.vy = rel*6; if (masterSoundEnabled) playTone(900,0.03,'square',0.05); } if (ball.x + ball.r > canvas.width - 20 && ball.y > cpuY && ball.y < cpuY + paddleH){ ball.vx = -Math.abs(ball.vx); const rel=(ball.y - (cpuY + paddleH/2))/(paddleH/2); ball.vy = rel*6; if (masterSoundEnabled) playTone(700,0.03,'square',0.05); } if (ball.x < 0){ cpu++; resetRound(); } if (ball.x > canvas.width){ you++; resetRound(); } cpuY += (ball.y - (cpuY + paddleH/2)) * 0.08; cpuY = Math.max(0, Math.min(canvas.height - paddleH, cpuY)); draw(); if (you >= 10 || cpu >= 10){ endGame(); } }
+  function resetRound(){ ball = {x: canvas.width/2, y: canvas.height/2, vx: (Math.random()>0.5?4:-4), vy: (Math.random()*4-2), r:7}; playerY = (canvas.height - paddleH)/2; cpuY = playerY; }
+  function start(){ if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); running=true; paused=false; you=0; cpu=0; resetRound(); clearInterval(loop); loop = setInterval(step, 16); document.getElementById('pongOverlay').style.display='none'; }
+  function pause(){ if (!running) return; paused = !paused; document.getElementById('pongOverlay').style.display = paused ? 'flex' : 'none'; document.getElementById('pongOverlayText').textContent = paused ? 'PAUSED' : 'PAUSED'; }
+  function stop(){ running=false; paused=false; clearInterval(loop); document.getElementById('pongOverlay').style.display='none'; }
+  function endGame(){ running=false; clearInterval(loop); document.getElementById('pongOverlay').style.display='flex'; document.getElementById('pongOverlayText').textContent='GAME OVER'; updateHS(HS_KEY, document.getElementById('pongName').value, you); }
+  document.getElementById('pongStart').addEventListener('click', start); document.getElementById('pongPause').addEventListener('click', pause); document.getElementById('pongStop').addEventListener('click', stop);
+  document.addEventListener('keydown', e=>{ if (e.key==='ArrowUp' || e.key==='w' || e.key==='W') playerY -= 28; if (e.key==='ArrowDown' || e.key==='s' || e.key==='S') playerY += 28; if (e.key===' ' && !running) start(); });
+  document.getElementById('pongCanvas').addEventListener('mousemove', e=>{ const rect = e.target.getBoundingClientRect(); const y = e.clientY - rect.top; playerY = Math.max(0, Math.min(e.target.height - paddleH, y - paddleH/2)); });
+  draw();
+})();
+
+/* ================ PAC-MAN (simple version) ================= */
+(function(){
+  const canvas = document.getElementById('pacmanCanvas'); const ctx = canvas.getContext('2d');
+  const tile = 20;
+  const cols = Math.floor(canvas.width / tile), rows = Math.floor(canvas.height / tile);
+  let pac = {x: Math.floor(cols/2), y: Math.floor(rows/2), dir:0}; // dir: 0=right,1=down,2=left,3=up
+  let pellets = [], ghosts=[], running=false, paused=false, score=0;
+  const HS_KEY='sheethappens_pacman_v1';
+  function init(){
+    pellets=[]; ghosts=[]; score=0; running=false; paused=false;
+    for (let y=1;y<rows-1;y++) for (let x=1;x<cols-1;x++) pellets.push({x,y,alive:true});
+    // simple ghosts
+    ghosts = [{x:1,y:1,dx:1,dy:0},{x:cols-2,y:1,dx:0,dy:1},{x:1,y:rows-2,dx:0,dy:-1}];
+    pac = {x:Math.floor(cols/2), y:Math.floor(rows/2), dir:0};
+    draw();
+  }
+  function draw(){
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    // draw pellets
+    ctx.fillStyle='#fff'; pellets.forEach(p=>{ if (p.alive) ctx.fillRect(p.x*tile + tile/2 -2, p.y*tile + tile/2 -2, 4,4); });
+    // draw pacman
+    ctx.fillStyle='#ffd86b'; ctx.beginPath(); const px = pac.x*tile + tile/2, py = pac.y*tile + tile/2; ctx.arc(px,py,tile/2 -2,0, Math.PI*2); ctx.fill();
+    // draw ghosts
+    ghosts.forEach(g=>{ ctx.fillStyle='#f00'; ctx.fillRect(g.x*tile + 4, g.y*tile + 4, tile-8, tile-8); });
+    document.getElementById('pacmanScore').textContent = 'SCORE: ' + score; document.getElementById('pacmanTop').textContent = loadHS(HS_KEY)[0]?.score || 0;
+  }
+  function step(){
+    if (!running || paused) return;
+    // move pac
+    if (pac.dir===0) pac.x++; if (pac.dir===1) pac.y++; if (pac.dir===2) pac.x--; if (pac.dir===3) pac.y--;
+    // wrap
+    if (pac.x < 1) pac.x = cols-2; if (pac.x > cols-2) pac.x = 1; if (pac.y < 1) pac.y = rows-2; if (pac.y > rows-2) pac.y = 1;
+    // eat pellets
+    pellets.forEach(p=>{ if (p.alive && p.x===pac.x && p.y===pac.y){ p.alive=false; score+=10; if (masterSoundEnabled) playTone(880,0.04,'square',0.05); }});
+    // move ghosts randomly
+    ghosts.forEach(g=>{ if (Math.random() < 0.2){ const d = Math.floor(Math.random()*4); if (d===0) {g.x++;} else if (d===1){g.y++;} else if (d===2){g.x--} else {g.y--} } // clamp
+      g.x = Math.max(1, Math.min(cols-2, g.x)); g.y = Math.max(1, Math.min(rows-2, g.y));
+      if (g.x === pac.x && g.y === pac.y){ gameOver(); }
     });
-
-    /* ----------------- UTIL helpers ----------------- */
-    function preventScrollArrows(){ window.addEventListener("keydown", function(e) { if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].indexOf(e.key) > -1) e.preventDefault(); }, false); }
-    preventScrollArrows();
-
-    function saveHS(key, list){ localStorage.setItem(key, JSON.stringify(list)); }
-    function loadHS(key){ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; }
-
-    /* ================== SNAKE (pause implemented) ================== */
-    (function(){
-      const canvas = document.getElementById('snakeCanvas');
-      const ctx = canvas.getContext('2d');
-      const box = 18;
-      const rows = Math.floor(canvas.height/box);
-      const cols = Math.floor(canvas.width/box);
-      let snake = [], food = null, dir = 'RIGHT', running = false, paused=false;
-      let interval = 180, minInterval=40, speedStep=8, gameTimer=null, score=0;
-      const HS_KEY = 'sheethappens_snake_v2';
-      const scoreEl = document.getElementById('snakeScoreDisplay');
-      const topEl = document.getElementById('snakeTop');
-      const nameEl = document.getElementById('playerNameSnake');
-      const overlay = document.getElementById('snakeOverlay');
-      const overlayText = document.getElementById('snakeOverlayText');
-
-      function init(){
-        snake = [{x:Math.floor(cols/2)*box, y:Math.floor(rows/2)*box}];
-        dir='RIGHT'; score=0; interval=180; paused=false;
-        genFood(); updateScore(); draw();
-        const top = loadHS(HS_KEY)[0]?.score||0; topEl.textContent = top;
-      }
-
-      function genFood(){
-        food = { x: Math.floor(Math.random()*cols)*box, y: Math.floor(Math.random()*rows)*box };
-        if (snake.some(s=>s.x===food.x && s.y===food.y)) genFood();
-      }
-
-      function draw(){
-        ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        // food
-        ctx.fillStyle='#ff3b3b'; ctx.fillRect(food.x, food.y, box, box);
-        // snake
-        for(let i=0;i<snake.length;i++){
-          ctx.fillStyle = (i===0) ? '#33ff33' : '#fff';
-          ctx.fillRect(snake[i].x, snake[i].y, box, box);
-        }
-      }
-
-      function step(){
-        if (!running || paused) return;
-        const head = {...snake[0]};
-        if (dir==='LEFT') head.x -= box;
-        if (dir==='RIGHT') head.x += box;
-        if (dir==='UP') head.y -= box;
-        if (dir==='DOWN') head.y += box;
-        // collisions
-        if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height ||
-            snake.some(s=>s.x===head.x && s.y===head.y)){
-          stopGame(true);
-          return;
-        }
-        snake.unshift(head);
-        if (head.x === food.x && head.y === food.y){
-          score++;
-          // speed up
-          interval = Math.max(minInterval, interval - speedStep);
-          if (masterSoundEnabled) playBeep(880,0.06,'square',0.06);
-          genFood();
-          // restart timer to apply new speed
-          if (gameTimer) { clearInterval(gameTimer); gameTimer = setInterval(step, interval); }
-        } else {
-          snake.pop();
-        }
-        updateScore();
-        draw();
-      }
-
-      function updateScore(){
-        const top = loadHS(HS_KEY)[0]?.score||0;
-        scoreEl.textContent = `SCORE: ${score} | TOP: ${top}`;
-      }
-
-      document.addEventListener('keydown', e=>{
-        const k = e.key;
-        if ((k==='ArrowLeft' || k==='a' || k==='A') && dir!=='RIGHT') dir='LEFT';
-        if ((k==='ArrowRight' || k==='d' || k==='D') && dir!=='LEFT') dir='RIGHT';
-        if ((k==='ArrowUp' || k==='w' || k==='W') && dir!=='DOWN') dir='UP';
-        if ((k==='ArrowDown' || k==='s' || k==='S') && dir!=='UP') dir='DOWN';
-      });
-
-      function startGame(){ if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); if (running) return; running=true; paused=false; init(); clearInterval(gameTimer); gameTimer = setInterval(step, interval); overlay.style.display='none'; }
-      function pauseGame(){ if(!running) return; paused = !paused; overlay.style.display = paused ? 'flex' : 'none'; overlayText.textContent = paused ? 'PAUSED' : ''; }
-      function stopGame(ended=false){
-        running=false; paused=false; clearInterval(gameTimer);
-        overlay.style.display='none';
-        if (ended){
-          if (masterSoundEnabled) playBeep(120,0.25,'sawtooth',0.10);
-          // save hs
-          const list = loadHS(HS_KEY);
-          list.push({ name: nameEl.value || 'Anon', score: score, t: Date.now() });
-          list.sort((a,b)=>b.score - a.score || a.t - b.t);
-          saveHS(HS_KEY, list.slice(0,5));
-          topEl.textContent = loadHS(HS_KEY)[0]?.score || 0;
-          alert('Game Over! Score: ' + score);
-        }
-      }
-
-      document.getElementById('snakeStart').addEventListener('click', ()=>startGame());
-      document.getElementById('snakePause').addEventListener('click', ()=>pauseGame());
-      document.getElementById('snakeStop').addEventListener('click', ()=>stopGame(false));
-      document.getElementById('snakeResume').addEventListener('click', ()=>{ pauseGame(); });
-
-      // init
+    draw();
+    if (pellets.every(p=>!p.alive)){ // level clear
+      if (masterSoundEnabled) playTone(1200,0.08,'square',0.06);
       init();
-    })();
+    }
+  }
+  function start(){ if (audioCtx && audioCtx.state==='suspended') audioCtx.resume(); running=true; paused=false; document.getElementById('pacmanOverlay').style.display='none'; clearInterval(window._pacTimer); window._pacTimer = setInterval(step, 220); }
+  function pause(){ if (!running) return; paused = !paused; document.getElementById('pacmanOverlay').style.display = paused ? 'flex' : 'none'; document.getElementById('pacmanOverlayText').textContent = paused ? 'PAUSED' : 'PAUSED'; }
+  function stop(){ running=false; paused=false; clearInterval(window._pacTimer); document.getElementById('pacmanOverlay').style.display='none'; init(); }
+  function gameOver(){ running=false; clearInterval(window._pacTimer); document.getElementById('pacmanOverlay').style.display='flex'; document.getElementById('pacmanOverlayText').textContent='GAME OVER'; updateHS(HS_KEY, document.getElementById('pacmanName').value, score); }
+  document.getElementById('pacmanStart').addEventListener('click', start);
+  document.getElementById('pacmanPause').addEventListener('click', pause);
+  document.getElementById('pacmanStop').addEventListener('click', stop);
+  document.getElementById('pacmanResume').addEventListener('click', ()=>{ pause(); });
 
-    /* ================== TETRIS (kept advanced features) ================== */
-    (function(){
-      // For brevity: use the Tetris logic from previous version but scoped here.
-      // Implement rotations, next, hold, scoring, level speed, soft drop scoring, sounds, pause, overlay.
-      // Core implementation adapted and condensed for this combined file.
+  document.addEventListener('keydown', function(e){
+    const k=e.key;
+    if (k==='ArrowLeft' || k==='a' || k==='A') pac.dir = 2;
+    else if (k==='ArrowRight' || k==='d' || k==='D') pac.dir = 0;
+    else if (k==='ArrowUp' || k==='w' || k==='W') pac.dir = 3;
+    else if (k==='ArrowDown' || k==='s' || k==='S') pac.dir = 1;
+  });
+  init();
+})();
 
-      const COLS = 10, ROWS = 20, BLOCK = 24;
-      const boardCanvas = document.getElementById('tetrisBoard');
-      const bctx = boardCanvas.getContext('2d');
-      boardCanvas.width = COLS * BLOCK; boardCanvas.height = ROWS * BLOCK;
-      const nextCanvas = document.getElementById('nextCanvas'); const nctx = nextCanvas.getContext('2d');
-      const holdCanvas = document.getElementById('holdCanvas'); const hctx = holdCanvas.getContext('2d');
-
-      const scoreEl = document.getElementById('tetrisScore');
-      const levelEl = document.getElementById('tetrisLevel');
-      const linesEl = document.getElementById('tetrisLines');
-      const overlay = document.getElementById('tetrisOverlay');
-      const tetrisRestart = document.getElementById('tetrisRestart');
-      const startBtn = document.getElementById('tetrisStart');
-      const pauseBtn = document.getElementById('tetrisPause');
-      const holdBtn = document.getElementById('tetrisHoldBtn');
-
-      const COLORS = {'I':'#00f0f0','J':'#0000f0','L':'#f0a000','O':'#f0f000','S':'#00f000','T':'#a000f0','Z':'#f00000'};
-      const TETROMINOES = {
-        I: [[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],[[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]]],
-        J: [[[1,0,0],[1,1,1],[0,0,0]],[[0,1,1],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,1]],[[0,1,0],[0,1,0],[1,1,0]]],
-        L: [[[0,0,1],[1,1,1],[0,0,0]],[[0,1,0],[0,1,0],[0,1,1]],[[0,0,0],[1,1,1],[1,0,0]],[[1,1,0],[0,1,0],[0,1,0]]],
-        O: [[[1,1],[1,1]]],
-        S: [[[0,1,1],[1,1,0],[0,0,0]],[[0,1,0],[0,1,1],[0,0,1]]],
-        T: [[[0,1,0],[1,1,1],[0,0,0]],[[0,1,0],[0,1,1],[0,1,0]],[[0,0,0],[1,1,1],[0,1,0]],[[0,1,0],[1,1,0],[0,1,0]]],
-        Z: [[[1,1,0],[0,1,1],[0,0,0]],[[0,0,1],[0,1,1],[0,1,0]]]
-      };
-
-      let board = createEmptyBoard(), current=null, nextPiece=null, holdPiece=null, canHold=true;
-      let score=0, lines=0, level=1, dropInterval=800, dropTimer=null, paused=false, gameOver=false;
-
-      const TET_KEY = 'sheethappens_tetris_v2';
-
-      function createEmptyBoard(){ const b=[]; for(let r=0;r<ROWS;r++) b.push(new Array(COLS).fill(0)); return b; }
-      function rndPiece(){ const k=Object.keys(TETROMINOES)[Math.floor(Math.random()*7)]; const shapes=TETROMINOES[k]; return {type:k,shapes,rot:0,x:Math.floor(COLS/2)-Math.ceil(shapes[0][0].length/2),y:0}; }
-      function getShape(p){ return p.shapes[p.rot]; }
-      function clone(p){ return {type:p.type,shapes:p.shapes,rot:p.rot,x:p.x,y:p.y}; }
-
-      function collide(piece,ox=0,oy=0){
-        const shape=getShape(piece);
-        for(let r=0;r<shape.length;r++) for(let c=0;c<shape[r].length;c++) if(shape[r][c]){
-          const x = piece.x + c + ox; const y = piece.y + r + oy;
-          if(x<0 || x>=COLS || y>=ROWS) return true;
-          if(y>=0 && board[y][x]) return true;
-        }
-        return false;
-      }
-
-      function place(piece){
-        const shape = getShape(piece);
-        for(let r=0;r<shape.length;r++) for(let c=0;c<shape[r].length;c++) if(shape[r][c]){
-          const x=piece.x+c, y=piece.y+r;
-          if(y>=0) board[y][x]=piece.type;
-        }
-        clearLines();
-        canHold=true;
-        spawnNext();
-      }
-
-      function clearLines(){
-        let cleared=0;
-        for(let r=ROWS-1;r>=0;r--){
-          if(board[r].every(cell=>cell!==0)){ board.splice(r,1); board.unshift(new Array(COLS).fill(0)); cleared++; r++; }
-        }
-        if(cleared){
-          const pts=[0,100,300,500,800];
-          score += pts[cleared] * level;
-          lines += cleared;
-          level = Math.floor(lines/10)+1;
-          dropInterval = Math.max(120, 800 - (level-1)*60);
-          playBeep(880,0.08,'square',0.06);
-          updateTetrisUI();
-        }
-      }
-
-      function updateTetrisUI(){ scoreEl.textContent = score; linesEl.textContent = lines; levelEl.textContent = level; }
-
-      function drawBlock(x,y,color,ctxLocal){ ctxLocal.fillStyle=color; ctxLocal.fillRect(x*BLOCK, y*BLOCK, BLOCK, BLOCK); ctxLocal.strokeStyle='#000'; ctxLocal.strokeRect(x*BLOCK, y*BLOCK, BLOCK, BLOCK); }
-      function drawBoard(){ bctx.fillStyle='#000'; bctx.fillRect(0,0,boardCanvas.width,boardCanvas.height); for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(board[r][c]) drawBlock(c,r,COLORS[board[r][c]], bctx); if(current) drawPiece(current); }
-      function drawPiece(piece){ const shape=getShape(piece); const color = COLORS[piece.type]; for(let r=0;r<shape.length;r++) for(let c=0;c<shape[r].length;c++) if(shape[r][c]){ const x=piece.x+c, y=piece.y+r; if(y>=0) drawBlock(x,y,color,bctx); } }
-
-      function spawnNext(){ if(!nextPiece) nextPiece = rndPiece(); current = clone(nextPiece); current.x = Math.floor(COLS/2)-Math.ceil(getShape(current)[0].length/2); nextPiece = rndPiece(); canHold=true; if(collide(current)) endTetris(); drawBoard(); drawNext(); drawHold(); }
-
-      function drawNext(){ nctx.fillStyle='#000'; nctx.fillRect(0,0,nextCanvas.width,nextCanvas.height); if(!nextPiece) return; const shape=getShape(nextPiece); const size=shape.length; const cell = Math.floor(nextCanvas.width/6); const ox = Math.floor((nextCanvas.width - size*cell)/2), oy = Math.floor((nextCanvas.height - size*cell)/2); for(let r=0;r<size;r++) for(let c=0;c<size;c++) if(shape[r][c]){ nctx.fillStyle = COLORS[nextPiece.type]; nctx.fillRect(ox+c*cell, oy+r*cell, cell, cell); nctx.strokeStyle='#000'; nctx.strokeRect(ox+c*cell, oy+r*cell, cell, cell); } }
-
-      function drawHold(){ hctx.fillStyle='#000'; hctx.fillRect(0,0,holdCanvas.width,holdCanvas.height); if(!holdPiece) return; const shape=getShape(holdPiece); const size=shape.length; const cell = Math.floor(holdCanvas.width/6); const ox = Math.floor((holdCanvas.width - size*cell)/2), oy = Math.floor((holdCanvas.height - size*cell)/2); for(let r=0;r<size;r++) for(let c=0;c<size;c++) if(shape[r][c]){ hctx.fillStyle = COLORS[holdPiece.type]; hctx.fillRect(ox+c*cell, oy+r*cell, cell, cell); hctx.strokeStyle='#000'; hctx.strokeRect(ox+c*cell, oy+r*cell, cell, cell); } }
-
-      function holdCurrent(){ if(!canHold) return; if(!holdPiece){ holdPiece = clone(current); spawnNext(); } else { const tmp = clone(current); current = clone(holdPiece); holdPiece = tmp; current.x = Math.floor(COLS/2)-Math.ceil(getShape(current)[0].length/2); current.y = 0; if(collide(current)) endTetris(); } canHold = false; drawBoard(); drawNext(); drawHold(); }
-
-      function moveCurrent(dx,dy){ if(!current) return false; current.x += dx; current.y += dy; if(collide(current)){ current.x -= dx; current.y -= dy; return false; } return true; }
-      function rotateCurrent(){ if(!current) return; const old = current.rot; current.rot = (current.rot+1) % current.shapes.length; // simple kicks
-        const kicks = [0,-1,1,-2,2]; let ok=false; for(let k of kicks){ current.x += k; if(!collide(current)) { ok=true; break;} current.x -= k; } if(!ok) current.rot = old; }
-
-      function hardDrop(){ if(!current) return; while(moveCurrent(0,1)){} place(current); playBeep(1200,0.02,'square',0.04); updateTetrisUI(); }
-
-      function gravityTick(){ if(paused || gameOver) return; if(!moveCurrent(0,1)){ place(current); updateTetrisUI(); } drawBoard(); }
-
-      function startTetris(){ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); board = createEmptyBoard(); current=null; nextPiece=rndPiece(); holdPiece=null; canHold=true; score=0; lines=0; level=1; dropInterval=800; paused=false; gameOver=false; overlay.style.display='none'; spawnNext(); updateTetrisUI(); if(dropTimer) clearInterval(dropTimer); dropTimer = setInterval(gravityTick, dropInterval); }
-
-      function pauseTetris(){ paused = !paused; pauseBtn.textContent = paused ? 'Resume' : 'Pause'; overlay.style.display = paused ? 'flex' : 'none'; document.getElementById('tetrisOverlayText').textContent = paused ? 'PAUSED' : 'GAME OVER'; }
-
-      function endTetris(){ gameOver = true; clearInterval(dropTimer); overlay.style.display = 'flex'; document.getElementById('tetrisOverlayText').textContent = 'GAME OVER'; document.getElementById('goScore').textContent = 'Score: ' + score; // save highscore
-        const list = loadHS(TET_KEY); list.push({score:score,t:Date.now()}); list.sort((a,b)=>b.score-a.score); saveHS(TET_KEY, list.slice(0,5)); renderTetrisHS(); playBeep(120,0.25,'sawtooth',0.1); }
-
-      function renderTetrisHS(){ const list = loadHS(TET_KEY); const el = document.getElementById('tetrisHighList'); if(!el) return; /* If element exists in older markup */ }
-
-      // keyboard controls
-      document.addEventListener('keydown', function(e){
-        if(gameOver) return;
-        const k = e.key;
-        if (k==='p' || k==='P'){ pauseTetris(); return; }
-        if (paused) return;
-        if (k==='ArrowLeft' || k==='a' || k==='A') { moveCurrent(-1,0); drawBoard(); }
-        else if (k==='ArrowRight' || k==='d' || k==='D') { moveCurrent(1,0); drawBoard(); }
-        else if (k==='ArrowDown' || k==='s' || k==='S') { if(moveCurrent(0,1)){ score += 1; updateTetrisUI(); drawBoard(); } }
-        else if (k==='ArrowUp' || k==='w' || k==='W') { rotateCurrent(); drawBoard(); }
-        else if (k===' ') { hardDrop(); drawBoard(); }
-        else if (k==='h' || k==='H') { holdCurrent(); }
-      });
-
-      startBtn.addEventListener('click', ()=>startTetris());
-      pauseBtn.addEventListener('click', ()=>pauseTetris());
-      holdBtn.addEventListener('click', ()=>{ holdCurrent(); });
-
-      tetrisRestart.addEventListener('click', ()=>{ overlay.style.display='none'; startTetris(); });
-
-      function updateTetrisUI(){ scoreEl.textContent = score; linesEl.textContent = lines; levelEl.textContent = level; if(dropTimer){ clearInterval(dropTimer); dropTimer = setInterval(gravityTick, dropInterval); } drawBoard(); drawNext(); drawHold(); }
-
-      // initial render
-      drawBoard(); drawNext(); drawHold();
-    })();
-
-    /* ================== BRICK BREAKER ================== */
-    (function(){
-      const canvas = document.getElementById('breakerCanvas');
-      const ctx = canvas.getContext('2d');
-      const paddleW = 80, paddleH = 12;
-      let paddleX = (canvas.width - paddleW)/2;
-      let ball = { x: canvas.width/2, y: canvas.height - 40, vx: 3, vy: -4, r: 7 };
-      let bricks = [], rows=5, cols=8, brickW = Math.floor((canvas.width - 40)/cols), brickH=16;
-      let lives=3, score=0, running=false, paused=false;
-      const HS_KEY = 'sheethappens_breaker_v1';
-      const scoreEl = document.getElementById('breakerScoreDisplay');
-      const overlay = document.getElementById('breakerOverlay');
-
-      function init(){
-        paddleX = (canvas.width - paddleW)/2;
-        ball = { x: canvas.width/2, y: canvas.height - 60, vx: 3, vy: -4, r: 7 };
-        bricks = [];
-        for(let r=0;r<rows;r++){
-          for(let c=0;c<cols;c++){
-            bricks.push({ x: 20 + c*brickW, y: 40 + r*(brickH+6), w: brickW-6, h: brickH, alive:true, color: `hsl(${r*40},80%,60%)` });
-          }
-        }
-        score = 0; lives=3; updateScore(); draw();
-      }
-
-      function draw(){
-        ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        // bricks
-        bricks.forEach(b=>{ if(b.alive){ ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,b.w,b.h); ctx.strokeStyle='#000'; ctx.strokeRect(b.x,b.y,b.w,b.h); }});
-        // paddle
-        ctx.fillStyle = '#ffd86b'; ctx.fillRect(paddleX, canvas.height - 30, paddleW, paddleH);
-        // ball
-        ctx.beginPath(); ctx.fillStyle='#fff'; ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fill();
-      }
-
-      function step(){
-        if(!running || paused) return;
-        ball.x += ball.vx; ball.y += ball.vy;
-        // wall collisions
-        if(ball.x - ball.r < 0 || ball.x + ball.r > canvas.width) ball.vx *= -1;
-        if(ball.y - ball.r < 0) ball.vy *= -1;
-        // paddle collision
-        if(ball.y + ball.r >= canvas.height - 30 && ball.x >= paddleX && ball.x <= paddleX + paddleW){
-          ball.vy *= -1;
-          // angle based on hit point
-          const hit = (ball.x - (paddleX + paddleW/2)) / (paddleW/2);
-          ball.vx = hit * 6;
-          if(masterSoundEnabled) playBeep(900,0.04,'square',0.06);
-        }
-        // brick collisions
-        bricks.forEach(b=>{
-          if(b.alive && ball.x > b.x && ball.x < b.x + b.w && ball.y - ball.r < b.y + b.h && ball.y + ball.r > b.y){
-            b.alive = false; ball.vy *= -1; score += 10; if(masterSoundEnabled) playBeep(720,0.04,'square',0.06);
-          }
-        });
-        // bottom
-        if(ball.y - ball.r > canvas.height){
-          lives--; if(lives<=0){ gameOver(); return; } else { resetBall(); }
-        }
-        draw(); updateScore();
-        // win check
-        if(bricks.every(b=>!b.alive)){ // next level: refill, speed up
-          rows = Math.min(8, rows+1); init(); if(masterSoundEnabled) playBeep(1200,0.08,'square',0.06);
-        }
-      }
-
-      function resetBall(){ ball = { x: canvas.width/2, y: canvas.height - 60, vx: 3, vy: -4, r:7 }; paddleX = (canvas.width - paddleW)/2; }
-
-      function movePaddle(dx){ paddleX += dx; paddleX = Math.max(0, Math.min(canvas.width - paddleW, paddleX)); }
-
-      document.addEventListener('keydown', e=>{
-        if(e.key==='ArrowLeft' || e.key==='a' || e.key==='A') movePaddle(-30);
-        if(e.key==='ArrowRight' || e.key==='d' || e.key==='D') movePaddle(30);
-        if(e.key===' '){ if(!running) start(); }
-      });
-
-      function updateScore(){ const top = loadHS(HS_KEY)[0]?.score || 0; scoreEl.textContent = `SCORE: ${score} | TOP: ${top}`; }
-
-      function start(){ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); running=true; paused=false; init(); clearInterval(window._breakerTimer); window._breakerTimer = setInterval(step, 20); overlay.style.display='none'; }
-      function pause(){ if(!running) return; paused = !paused; overlay.style.display = paused ? 'flex' : 'none'; document.getElementById('breakerOverlayText').textContent = paused ? 'PAUSED' : 'GAME OVER'; }
-      function stop(){ running=false; paused=false; clearInterval(window._breakerTimer); overlay.style.display='none'; }
-
-      function gameOver(){ running=false; paused=false; clearInterval(window._breakerTimer); overlay.style.display='flex'; document.getElementById('breakerOverlayText').textContent = 'GAME OVER'; // save HS
-        const list = loadHS(HS_KEY); list.push({ name: document.getElementById('playerNameBreaker').value || 'Anon', score: score, t:Date.now() }); list.sort((a,b)=>b.score - a.score); saveHS(HS_KEY, list.slice(0,5)); document.getElementById('breakerRestart').focus();
-      }
-
-      document.getElementById('breakerStart').addEventListener('click', ()=>start());
-      document.getElementById('breakerPause').addEventListener('click', ()=>pause());
-      document.getElementById('breakerStop').addEventListener('click', ()=>stop());
-      document.getElementById('breakerRestart').addEventListener('click', ()=>{ overlay.style.display='none'; start(); });
-
-      // simple mouse move control for paddle
-      canvas.addEventListener('mousemove', e=>{
-        const rect = canvas.getBoundingClientRect(); const x = e.clientX - rect.left;
-        paddleX = Math.max(0, Math.min(canvas.width - paddleW, x - paddleW/2));
-      });
-
-      // init once
-      init();
-    })();
-
-    /* ================== PONG (AI opponent) ================== */
-    (function(){
-      const canvas = document.getElementById('pongCanvas');
-      const ctx = canvas.getContext('2d');
-      const paddleW = 12, paddleH = 90;
-      let playerY = (canvas.height - paddleH)/2, cpuY = (canvas.height - paddleH)/2;
-      let ball = { x: canvas.width/2, y: canvas.height/2, vx: 4, vy: 2, r:7 };
-      let running=false, paused=false, you=0, cpu=0;
-      const HS_KEY = 'sheethappens_pong_v1';
-      const youEl = document.getElementById('pongYou'), cpuEl = document.getElementById('pongCPU');
-      const overlay = document.getElementById('pongOverlay');
-
-      function draw(){
-        ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
-        // center line
-        ctx.fillStyle='#222'; for(let y=0;y<canvas.height;y+=24) ctx.fillRect(canvas.width/2 -2, y, 4, 12);
-        // paddles
-        ctx.fillStyle='#ffd86b'; ctx.fillRect(10, playerY, paddleW, paddleH);
-        ctx.fillRect(canvas.width - 20, cpuY, paddleW, paddleH);
-        // ball
-        ctx.beginPath(); ctx.fillStyle='#fff'; ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fill();
-      }
-
-      function step(){
-        if(!running || paused) return;
-        ball.x += ball.vx; ball.y += ball.vy;
-        // bounce top/bottom
-        if(ball.y - ball.r < 0 || ball.y + ball.r > canvas.height) ball.vy *= -1;
-        // player paddle
-        if(ball.x - ball.r < 20 && ball.y > playerY && ball.y < playerY + paddleH){
-          ball.vx = Math.abs(ball.vx); // bounce right
-          // tweak vy
-          const rel = (ball.y - (playerY + paddleH/2)) / (paddleH/2);
-          ball.vy = rel * 6;
-          if(masterSoundEnabled) playBeep(900,0.03,'square',0.05);
-        }
-        // cpu paddle
-        if(ball.x + ball.r > canvas.width - 20 && ball.y > cpuY && ball.y < cpuY + paddleH){
-          ball.vx = -Math.abs(ball.vx);
-          const rel = (ball.y - (cpuY + paddleH/2)) / (paddleH/2);
-          ball.vy = rel * 6;
-          if(masterSoundEnabled) playBeep(700,0.03,'square',0.05);
-        }
-        // score
-        if(ball.x < 0){ cpu++; resetRound(); }
-        if(ball.x > canvas.width){ you++; resetRound(); }
-        // simple CPU: follow ball with smoothing
-        cpuY += (ball.y - (cpuY + paddleH/2)) * 0.08;
-        // clamp
-        cpuY = Math.max(0, Math.min(canvas.height - paddleH, cpuY));
-        draw(); youEl.textContent = you; cpuEl.textContent = cpu;
-      }
-
-      function resetRound(){
-        ball = { x: canvas.width/2, y: canvas.height/2, vx: (Math.random()>0.5?4:-4), vy: (Math.random()*4-2), r:7 };
-        playerY = (canvas.height - paddleH)/2; cpuY = playerY;
-        if (you >= 10 || cpu >= 10){ endGame(); }
-      }
-
-      function start(){ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); running=true; paused=false; you=0; cpu=0; resetRound(); clearInterval(window._pongTimer); window._pongTimer = setInterval(step, 16); overlay.style.display='none'; }
-      function pause(){ if(!running) return; paused = !paused; overlay.style.display = paused ? 'flex' : 'none'; document.getElementById('pongOverlayText').textContent = paused ? 'PAUSED' : 'PAUSED'; }
-      function stop(){ running=false; paused=false; clearInterval(window._pongTimer); overlay.style.display='none'; }
-      function endGame(){ running=false; clearInterval(window._pongTimer); overlay.style.display='flex'; document.getElementById('pongOverlayText').textContent = 'GAME OVER'; // optional high scores save
-        // save user's score into HS
-        const list = loadHS(HS_KEY); list.push({ name: document.getElementById('playerNamePong').value || 'Player', score: you, t: Date.now() }); list.sort((a,b)=>b.score - a.score); saveHS(HS_KEY, list.slice(0,5));
-      }
-
-      // controls
-      document.addEventListener('keydown', e=>{
-        if(e.key==='ArrowUp' || e.key==='w' || e.key==='W') playerY -= 28;
-        if(e.key==='ArrowDown' || e.key==='s' || e.key==='S') playerY += 28;
-        if(e.key===' ' && !running) start();
-      });
-
-      // mouse for paddle
-      canvas.addEventListener('mousemove', e=>{
-        const rect = canvas.getBoundingClientRect(); const y = e.clientY - rect.top;
-        playerY = Math.max(0, Math.min(canvas.height - paddleH, y - paddleH/2));
-      });
-
-      document.getElementById('pongStart').addEventListener('click', ()=>start());
-      document.getElementById('pongPause').addEventListener('click', ()=>pause());
-      document.getElementById('pongStop').addEventListener('click', ()=>stop());
-      document.getElementById('pongResume').addEventListener('click', ()=>{ pause(); });
-
-      // initial draw
-      draw();
-    })();
-
-    // End of combined script
-  </script>
+/* End of file */
+</script>
 </body>
 </html>

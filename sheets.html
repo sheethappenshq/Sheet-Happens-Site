@@ -36,6 +36,7 @@
       margin-top: 10px;
       background: #444;
       padding: 10px 0;
+      text-align: center;
     }
     .nav a {
       color: white;
@@ -78,9 +79,9 @@
     .sheet-link {
       text-decoration: none;
       color: inherit;
-      display: block; /* ✅ Only wraps around the .sheet-box */
-      width: 100%; /* ✅ Make sure it doesn’t shrink oddly */
-      max-width: 600px; /* ✅ Matches the .sheet-box max width */
+      display: flex;          /* ✅ Use flexbox instead of block */
+      justify-content: center; /* ✅ Center the child box */
+      width: 100%;
     }
     .sheet-link .sheet-box {
       margin: 20px auto; /* ✅ Keeps the box centered */

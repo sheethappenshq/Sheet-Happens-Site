@@ -1,10 +1,111 @@
-<!-- Header with site title and nav bar -->
-<div class="header">
-  <h1>Sheet Happens</h1>
-  <div class="nav">
-    <a href="index.html">Home</a>
-    <a href="games.html">Games</a>
-    <a href="sheets.html">Study Sheets</a>
-    <a href="contact.html">Contact Me / Buy Something</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sheet Happens - Contact</title>
+  <style>
+    html, body {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      text-align: center;
+    }
+
+    /* Header bar */
+    .header {
+      background: #333;
+      color: white;
+      padding: 15px 0 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .nav {
+      margin-top: 10px;
+      background: #444;
+      padding: 10px 0;
+    }
+    .nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+      transition: color 0.2s;
+    }
+    .nav a:hover {
+      color: #ffcc00;
+    }
+
+    /* Content */
+    .content {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Two-column layout */
+    .columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .column {
+      flex: 1 1 400px;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: left;
+    }
+    .column h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #444;
+      text-align: center;
+    }
+    .column p {
+      color: #555;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with site title and nav bar -->
+  <div class="header">
+    <h1>Sheet Happens</h1>
+    <div class="nav">
+      <a href="index.html">Home</a>
+      <a href="games.html">Games</a>
+      <a href="sheets.html">Study Sheets</a>
+      <a href="contact.html">Contact Me / Buy Something</a>
+    </div>
   </div>
-</div>
+
+  <!-- Main content -->
+  <div class="content">
+    <div class="columns">
+      <!-- Left column -->
+      <div class="column">
+        <h2>How to Contact Me!</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Replace this text with your own words about how people can reach you.</p>
+      </div>
+
+      <!-- Right column -->
+      <div class="column">
+        <h2>How to Buy a Study Sheet</h2>
+        <p>Here you can explain your pricing, payment methods, or link to previews. Add instructions for how someone can purchase a sheet from you.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,73 +1,75 @@
- 1 <!DOCTYPE html>
- 2 <html lang="en">
- 3 <head>
- 4   <meta charset="UTF-8">
- 5   <meta name="viewport" content="width=device-width, initial-scale=1.0">
- 6   <title>Topic Sheet - Sheet Happens</title>
- 7   <style>
- 8     body {
- 9       font-family: Arial, sans-serif;
-10       margin: 0;
-11       padding: 0;
-12       background: #f4f4f4;
-13       text-align: center;
-14     }
-15 
-16     /* Header bar */
-17     .header {
-18       background: #333;
-19       color: white;
-20       padding: 15px 0;
-21       position: sticky;
-22       top: 0;
-23       z-index: 1000;
-24     }
-25     .header h1 {
-26       margin: 0;
-27       font-size: 2em;
-28       font-weight: bold;
-29     }
-30 
-31     /* Back button */
-32     .back-btn {
-33       display: inline-block;
-34       margin: 15px 0;
-35       padding: 10px 20px;
-36       background: #444;
-37       color: white;
-38       text-decoration: none;
-39       border-radius: 5px;
-40       transition: background 0.2s;
-41     }
-42     .back-btn:hover {
-43       background: #ffcc00;
-44       color: #333;
-45     }
-46 
-47     .content {
-48       padding: 30px 20px;
-49       max-width: 800px;
-50       margin: auto;
-51       text-align: left;
-52       background: white;
-53       border-radius: 8px;
-54       border: 2px solid #333;
-55     }
-56   </style>
-57 </head>
-58 <body>
-59   <!-- Header -->
-60   <div class="header">
-61     <h1>Sheet Happens</h1>
-62   </div>
-63 
-64   <!-- Back button -->
-65   <a href="sheets.html" class="back-btn">← Back to Sheets</a>
-66 
-67   <!-- Page Content -->
-68   <div class="content">
-69     <h2>Topic Cheat Sheet</h2>
-70     <p>Here’s where you’d write about your topic cheat sheets.</p>
-71   </div>
-72 </body>
-73 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Custom Sheet - Sheet Happens</title>
+  <style>
+    html, body {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      text-align: center;
+    }
+
+    /* Header bar */
+    .header {
+      background: #333;
+      color: white;
+      padding: 15px 0 10px 0; /* top 15px, bottom 10px */
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    /* Back button */
+    .back-btn {
+      display: block;         /* centers with margin auto */
+      margin: 20px auto;      /* space and center */
+      padding: 10px 20px;
+      background: #444;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.2s;
+      width: max-content;     /* shrink to content in modern browsers */
+    }
+    .back-btn:hover {
+      background: #ffcc00;
+      color: #333;
+    }
+
+    .content {
+      padding: 30px 20px;
+      max-width: 800px;
+      margin: 20px auto; /* leave some breathing room below back button */
+      text-align: left;
+      background: white;
+      border-radius: 8px;
+      border: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>Sheet Happens</h1>
+  </div>
+
+  <!-- Back button -->
+  <a href="sheets.html" class="back-btn">← Back to Sheets</a>
+
+  <!-- Page Content -->
+  <div class="content">
+    <h2>Topic Cheat Sheet</h2>
+    <p>Here’s where you’d write about your topic cheat sheets.</p>
+  </div>
+</body>
+</html>

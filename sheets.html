@@ -22,15 +22,14 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      text-align: center;   /* ✅ Center everything in header */
     }
 
     /* Site title */
     .header h1 {
-      margin: 0 auto;       /* ✅ Keeps it centered */
+      margin: 0;
       font-size: 2em;
       font-weight: bold;
-      display: inline-block; /* ✅ Prevents weird stretching */
+      text-align: center; /* ✅ ensures proper centering */
     }
 
     /* Navigation bar */
@@ -38,7 +37,7 @@
       margin-top: 10px;
       background: #444;
       padding: 10px 0;
-      text-align: center;   /* ✅ Center the nav links */
+      text-align: center;
     }
     .nav a {
       color: white;
@@ -55,6 +54,8 @@
     /* Content */
     .content {
       padding: 40px 20px;
+      max-width: 900px;   /* ✅ keeps content aligned nicely */
+      margin: 0 auto;
     }
 
     /* Sheet box */
@@ -77,16 +78,16 @@
       color: #555;
     }
 
-    /* Make sheet-box clickable */
+    /* Fixed clickable box */
     .sheet-link {
       text-decoration: none;
       color: inherit;
-      display: inline-block; /* ✅ Only wraps the box */
-      max-width: 600px;      /* ✅ Matches .sheet-box */
-      margin: 20px auto;     /* ✅ Centers horizontally */
+      display: block;       /* ✅ stack vertically */
+      max-width: 600px;     /* ✅ match box width */
+      margin: 20px auto;    /* ✅ center the whole thing */
     }
     .sheet-link .sheet-box {
-      margin: 0;             /* ✅ Let parent handle centering */
+      margin: 0;            /* ✅ prevent double centering */
     }
     .sheet-link:hover .sheet-box {
       border-color: #ffcc00;

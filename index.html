@@ -7,27 +7,52 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0; /* remove default spacing */
+      margin: 0;
       background: #f4f4f4;
       text-align: center;
     }
 
-    /* Top bar */
-    .top-bar {
-      background: #333;      /* dark background */
-      color: white;          /* white text */
-      padding: 15px 0;       /* space above/below text */
-      font-size: 1.5em;
-      font-weight: bold;
-      position: sticky;      /* stays visible when scrolling */
+    /* Header bar */
+    .header {
+      background: #333;
+      color: white;
+      padding: 15px 0 0 0;
+      position: sticky;
       top: 0;
       z-index: 1000;
     }
 
+    /* Site title */
+    .header h1 {
+      margin: 0;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    /* Navigation bar */
+    .nav {
+      margin-top: 10px;
+      background: #444;
+      padding: 10px 0;
+    }
+    .nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+      transition: color 0.2s;
+    }
+    .nav a:hover {
+      color: #ffcc00;
+    }
+
+    /* Content */
     .content {
       padding: 40px 20px;
     }
 
+    /* Q&A box */
     .qa-box {
       margin: 40px auto;
       max-width: 600px;
@@ -56,9 +81,14 @@
   </style>
 </head>
 <body>
-  <!-- Top bar -->
-  <div class="top-bar">
-    Sheet Happens
+  <!-- Header with site title and nav bar -->
+  <div class="header">
+    <h1>Sheet Happens</h1>
+    <div class="nav">
+      <a href="index.html">Home</a>
+      <a href="games.html">Games</a>
+      <a href="sheets.html">Study Sheets</a>
+    </div>
   </div>
 
   <!-- Main content -->

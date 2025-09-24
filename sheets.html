@@ -1,51 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Study Sheets - Sheet Happens</title>
   <style>
     html, body {
       font-family: Arial, sans-serif;
-      font-size: 16px; /* lock font size */
+      font-size: 16px;
       margin: 0;
       padding: 0;
       background: #f4f4f4;
       text-align: center;
     }
 
-    /* Header bar */
+    /* Header bar (full width) */
     .header {
       background: #333;
       color: white;
-      padding: 15px 0 15px 0; /* balanced padding top/bottom */
+      padding: 15px 0 10px 0; /* balanced vertical padding */
       position: sticky;
       top: 0;
       z-index: 1000;
     }
 
-    /* Site title */
+    /* Title centered inside full-width header */
     .header h1 {
       margin: 0;
       font-size: 2em;
       font-weight: bold;
+      display: block;
+      text-align: center;
     }
 
-    /* Align header inner contents with page content */
-    .header h1,
-    .header .nav {
-      max-width: 900px;     /* same width as .content */
-      margin: 0 auto;       /* center them */
-      padding: 0 20px;      /* same side padding as content */
-      box-sizing: border-box;
-    }
-
-    /* Navigation bar */
+    /* Navigation bar - full width background, centered links */
     .nav {
-      margin-top: 10px;
+      width: 100%;
       background: #444;
       padding: 10px 0;
-      text-align: center;
+      box-sizing: border-box;
+      text-align: center; /* center the link inline items */
     }
     .nav a {
       color: white;
@@ -55,15 +49,14 @@
       font-weight: bold;
       transition: color 0.2s;
     }
-    .nav a:hover {
-      color: #ffcc00;
-    }
+    .nav a:hover { color: #ffcc00; }
 
-    /* Content */
+    /* Page content column (centered and constrained) */
     .content {
       padding: 40px 20px;
-      max-width: 900px;   /* keep aligned with header */
-      margin: 0 auto;     /* center it */
+      max-width: 900px;   /* column width */
+      margin: 0 auto;     /* center column */
+      box-sizing: border-box;
     }
 
     /* Sheet box */
@@ -76,36 +69,34 @@
       text-align: left;
       transition: background 0.2s, border-color 0.2s;
     }
-    .sheet-box h2 {
-      margin-top: 0;
-      font-size: 1.5em;
-      color: #444;
-    }
-    .sheet-box p {
-      margin: 10px 0;
-      color: #555;
-    }
+    .sheet-box h2 { margin-top: 0; font-size: 1.5em; color: #444; }
+    .sheet-box p  { margin: 10px 0; color: #555; }
 
-    /* Make sheet-box clickable */
+    /* Clickable wrapper: stack vertically, centered, only as wide as the box */
     .sheet-link {
+      display: block;       /* each link on its own line */
+      max-width: 600px;     /* match .sheet-box width */
+      margin: 20px auto;    /* center the link (so box centers) */
       text-decoration: none;
       color: inherit;
-      display: block;       /* stack vertically */
-      max-width: 600px;     /* same width as .sheet-box */
-      margin: 20px auto;    /* center it */
+      box-sizing: border-box;
     }
-    .sheet-link .sheet-box {
-      margin: 0;            /* parent handles centering */
-    }
+    .sheet-link .sheet-box { margin: 0; } /* parent centers it */
     .sheet-link:hover .sheet-box {
       border-color: #ffcc00;
       background: #f9f9f9;
       cursor: pointer;
     }
+
+    /* small responsive tweak */
+    @media (max-width: 640px) {
+      .sheet-box, .sheet-link { max-width: calc(100% - 40px); }
+      .content { padding: 24px 12px; }
+    }
   </style>
 </head>
 <body>
-  <!-- Header -->
+  <!-- Header (full width background) -->
   <div class="header">
     <h1>Sheet Happens</h1>
     <div class="nav">
@@ -115,23 +106,23 @@
     </div>
   </div>
 
-  <!-- Content -->
+  <!-- Page content (constrained column) -->
   <div class="content">
     <h2>Study Sheets</h2>
-    <p>This is where I put the cheat sheets I make, right now there are only cheat sheets for the subjects I'm currently doing, (cuz I use them myself), but if you
-    have a subject request you can just DM or email me and I'll add it here. (At no extra cost btw that would be greedy as hell).</p>
+    <p>
+      This is where I put the cheat sheets I make, right now there are only cheat sheets for the subjects I'm currently doing,
+      (cuz I use them myself). If you have a subject request you can just DM or email me and I'll add it here.
+      (At no extra cost btw that would be greedy as hell).
+    </p>
 
-    <!-- Box 1: links to topic.html -->
     <a href="topic-sheet.html" class="sheet-link">
       <div class="sheet-box">
         <h2>Topic Cheat Sheet</h2>
         <p>Covers a single topic (I can also combine multiple, email me! :D) you might want a simple and concise summary of.</p>
-        <br>
-        <p>(Maybe you have a topic test in class that you're getting graded on for example and you need a summary of this one chapter you're struggling with.)</p>
+        <p>(Maybe you have a topic test in class and you need a summary of this one chapter you're struggling with.)</p>
       </div>
     </a>
 
-    <!-- Box 2: links to whole.html -->
     <a href="subject-sheet.html" class="sheet-link">
       <div class="sheet-box">
         <h2>Whole Subject Cheat Sheet</h2>
@@ -139,13 +130,11 @@
       </div>
     </a>
 
-    <!-- Box 3: links to custom.html -->
     <a href="custom-sheet.html" class="sheet-link">
       <div class="sheet-box">
         <h2>Custom Cheat Sheet</h2>
-        <p>Send me an email or DM me and within 2 hours I'll make you a individualised custom sheet on any subject (I can also do topics, but you get more content choosing a subject at no extra price, generous I know).</p>
-        <br> 
-        <p>(Maybe it's the night before your exam and you need like 3 subjects worth of information... I'm not one to judge)</p>
+        <p>Send me an email or DM me and within 2 hours I'll make you an individualized custom sheet on any subject.</p>
+        <p>(Maybe it's the night before your exam and you need 3 subjects worth of info... I'm not one to judge.)</p>
       </div>
     </a>
   </div>
